@@ -160,8 +160,30 @@ Example URLs:
 * Use SQL Server on Azure SQL Database or AWS RDS
 
 ---
+## 🗂 Repository Structure Strategy
+
+For better scalability and team collaboration, **BondTalesChat** is split into multiple repositories:
+
+| Repository Name                  | Description                               |
+|-----------------------------------|-------------------------------------------|
+| **BondTalesChat-Client**          | Angular user-facing chat application      |
+| **BondTalesChat-Admin**           | Angular-based admin panel for management  |
+| **BondTalesChat-Server**          | C# .NET backend API with SignalR support  |
+| **BondTalesChat-Database**        | SQL scripts, migrations, and seed data    |
+| **BondTalesChat-Firebase**        | Firebase configuration for presence & push notifications |
+| **BondTalesChat-Docs**            | Documentation, diagrams, and flowcharts   |
+
+### 🔄 How These Repos Work Together
+1. **User Login (Client)** → Calls **Server API** → Authenticates & issues JWT → Redirects based on role.
+2. **Admin Login (Admin)** → Calls **Server API** → Authenticates & loads admin dashboard.
+3. **Server** handles business logic, data access, and real-time events via SignalR.
+4. **Database** repo holds all SQL schema and migration scripts, used by the Server repo.
+5. **Firebase** repo holds configs for notifications and online/offline tracking.
+6. **Docs** repo stores architecture diagrams, API references, and setup guides.
+
+> This separation ensures independent deployment, isolated testing, and easier CI/CD pipelines.
+
 
 ## 📜 License
 
 MIT License — Free to use & modify.
-
