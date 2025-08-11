@@ -1,2 +1,167 @@
-# BondTalesChat-client
+
+# BondTales Chat 📱💬
 A real-time chat application that keeps conversations flowing — where every message leaves a little ‘tail’ of connection.
+
+---
+
+## 🚀 Features
+
+### 👤 User Features
+- Secure registration & login
+- One-on-one and group chats
+- Send text, images, voice, and files
+- Message read receipts & typing indicators
+- Searchable chat history
+- Self-destructing media
+- Mood-based themes
+- Real-time message translation
+- Shared live whiteboard
+- Story-mode chat playback
+
+### 🛠 Admin Features
+- Manage users & groups
+- Monitor reported messages
+- Content moderation
+- View analytics & usage stats
+- Broadcast announcements
+
+---
+
+## 📂 Project Structure
+
+```
+
+BondTalesChat/
+│
+├── client/                  # Angular frontend (User)
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/  # Reusable UI parts
+│   │   │   ├── pages/       # Page views
+│   │   │   ├── services/    # API & socket services
+│   │   │   ├── store/       # State management
+│   │   │   └── assets/      # Images, styles
+│   │   └── index.html
+│
+├── admin/                   # Angular admin panel
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/
+│   │   │   ├── pages/
+│   │   │   ├── services/
+│   │   │   └── assets/
+│   │   └── index.html
+│
+├── server/                  # C# .NET backend API
+│   ├── Controllers/         # API endpoints
+│   ├── Models/              # Entity models
+│   ├── Services/            # Business logic
+│   ├── Repositories/        # DB access
+│   ├── DTOs/                # Data transfer objects
+│   ├── Migrations/          # SQL migrations
+│   └── Program.cs           # App entry point
+│
+├── database/                # SQL scripts
+│   ├── schema.sql
+│   └── seed-data.sql
+│
+├── firebase/                # Firebase configs
+│   ├── firebase-config.json
+│
+├── docs/                    # Documentation & diagrams
+│
+├── .env.example             # Environment variables template
+├── README.md
+└── LICENSE
+
+````
+
+---
+
+## 🛠 Tech Stack
+
+**Frontend:** Angular, TailwindCSS, RxJS, WebSocket  
+**Backend:** C# .NET Core, REST API, SignalR  
+**Database:** SQL Server  
+**Realtime Features:** Firebase Realtime Database / Firestore (for presence & notifications)  
+**Auth:** JWT Authentication + Firebase Auth  
+**Deployment:** Docker, Azure / AWS
+
+---
+
+## 📦 Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/BondTalesChat.git
+cd BondTalesChat
+````
+
+2. **Setup environment variables**
+   Copy `.env.example` to `.env` and update values.
+
+3. **Run backend**
+
+```bash
+cd server
+dotnet restore
+dotnet run
+```
+
+4. **Run frontend (User app)**
+
+```bash
+cd client
+npm install
+ng serve
+```
+
+5. **Run admin panel**
+
+```bash
+cd admin
+npm install
+ng serve
+```
+
+---
+
+## 🔐 Access
+
+* **User App:** `/client`
+* **Admin Panel:** `/admin`
+* **Backend API:** `/server`
+
+---
+
+## 🗂 Admin Panel Setup
+
+* The Admin Panel is developed as a separate Angular project (`admin`) for better modularity and maintainability.
+* Both the main application and the admin panel are hosted separately.
+* After successful login, the backend verifies the user role:
+
+  * **Admin role:** Redirects to the Admin Panel URL.
+  * **User role:** Redirects to the Main Application URL.
+* Redirection is handled via Angular routing or browser navigation.
+* JWT tokens are passed between apps for authentication, validated on the backend before granting access.
+
+Example URLs:
+
+* **Admin Panel:** `https://example.com/admin`
+* **Main App:** `https://example.com`
+
+---
+
+## 🚢 Deployment
+
+* Use Docker for containerized builds
+* Host backend on Azure App Service or AWS EC2
+* Deploy Angular apps via Netlify/Vercel/Azure Static Web Apps
+* Use SQL Server on Azure SQL Database or AWS RDS
+
+---
+
+## 📜 License
+
+MIT License — Free to use & modify.
+
