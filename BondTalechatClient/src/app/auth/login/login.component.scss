@@ -57,8 +57,8 @@ button{
 
 .login-footer{
     display: flex;
-    justify-content: center;
-    gap: 5px;
+    align-items: center;
+    justify-content: space-around;
 }
 
 h2{
@@ -78,5 +78,5 @@ p{
 a{
     color: var( --accent-pink);
     cursor: pointer;
-     text-decoration: none;
+    text-decoration: none;
 }
