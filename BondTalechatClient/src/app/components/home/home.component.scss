@@ -1,3 +1,28 @@
 p{
     color: red;
 }
+.main-container{
+display: flex;
+flex-direction: column;
+}
+.top-components{
+    background-color: aqua;
+    height: 30px;
+}
+.lower-components{
+    display: flex;
+    flex-direction: row;
+}
+app-left-sidebar{
+    background-color: aquamarine;
+    width: 5%;
+    height: 100vh;
+}
+app-users-list-side-bar{
+    background-color: rgb(178, 178, 150);
+    width: 30%;
+}
+app-chat-area{
+    background-color: antiquewhite;
+    width: 65%;
+}
