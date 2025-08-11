@@ -1,1 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  /* Primary Colors */
+  --primary-dark: #1a1a2e;
+  --primary-deep: #16213e;
+  --primary-rich: #0f3460;
+
+  /* Accent Colors */
+  --accent-pink: #e94560;
+
+  /* Text Colors */
+  --text-white: #ffffff;
+  --text-light-gray: #b8b8b8;
+
+  /* System Colors */
+  --success-green: #4caf50;
+  --error-red: #f44336;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0px;
+  padding: 0px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  color: var(--text-white);
+}
