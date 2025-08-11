@@ -1,12 +1,50 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink, Router } from '@angular/router';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { passwordMatchValidator } from '../../validators/password-match.validator';
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule, ReactiveFormsModule, CommonModule],
   templateUrl: './signup.component.html',
-  styleUrl: './signup.component.scss'
+  styleUrl: './signup.component.scss',
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
+  signupForm!: FormGroup;
+  constructor(private router: Router) {}
 
+  ngOnInit(): void {
+    this.signupForm = new FormGroup(
+      {
+        username: new FormControl('', Validators.required),
+        email: new FormControl('', [Validators.required, Validators.email]),
+        password: new FormControl('', Validators.required),
+        confirmPassword: new FormControl('', Validators.required),
+      },
+      {
+        validators: passwordMatchValidator('password', 'confirmPassword'), // Custom Cross Field Validator
+      }
+    );
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/home']);
+  }
+
+  onFormSubmit(): void {
+    if (this.signupForm.valid) {
+      const formData = this.signupForm.value;
+      console.log('Signup data submitted:', formData);
+      this.navigateToHome();
+    } else {
+      console.log('Form is invalid', this.signupForm);
+    }
+  }
 }

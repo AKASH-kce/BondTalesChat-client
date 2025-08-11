@@ -40,13 +40,21 @@ input{
     border-radius: 5px;
 }
 button{
-    background-color: var(--accent-pink);
     border: none;
     outline: none;
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
     width: 80%;
+}
+
+.activeButton{
+     background-color: var(--accent-pink);
+}
+
+.inactiveButton{
+    background-color: var(--accent-pink-disabled);
+    cursor: not-allowed;
 }
 
 .form-elements-button{
@@ -79,4 +87,15 @@ a{
     color: var( --accent-pink);
     cursor: pointer;
     text-decoration: none;
+}
+
+
+/* Error Validators */
+input.ng-invalid.ng-touched {
+    border: 1px solid var(--error-red);
+}
+
+small{
+    color: var(--error-red);
+    font-weight: bold;
 }

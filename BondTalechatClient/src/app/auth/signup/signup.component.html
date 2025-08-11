@@ -1,31 +1,83 @@
 <div class="Background">
   <div class="login-container">
     <h2>Sign Up</h2>
-    <form action="">
+    <form [formGroup]="signupForm" (ngSubmit)="onFormSubmit()">
       <div class="form-elements">
         <div class="form-elements">
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" />
-      </div>
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" formControlName="email" />
+          <small
+            *ngIf="
+              signupForm.get('email')?.invalid &&
+              signupForm.get('email')?.touched
+            "
+            >*Email is a required.</small
+          >
+        </div>
         <label for="username">Username</label>
-        <input type="text" name="username" id="username" />
+        <input
+          type="text"
+          name="username"
+          id="username"
+          formControlName="username"
+        />
+        <small
+          *ngIf="
+            signupForm.get('username')?.invalid &&
+            signupForm.get('username')?.touched
+          "
+          >*username is a required.</small
+        >
       </div>
       <div class="form-elements">
         <label for="password">Password</label>
-        <input type="password" name="password" id="password" />
+        <input
+          type="password"
+          name="password"
+          id="password"
+          formControlName="password"
+        />
+        <small
+          *ngIf="
+            signupForm.get('password')?.invalid &&
+            signupForm.get('password')?.touched
+          "
+          >*password is a required.</small
+        >
       </div>
       <div class="form-elements">
         <label for="confirm-password">Confirm Password</label>
-        <input type="password" name="confirm-password" id="confirm-password" />
+        <input
+          type="password"
+          name="confirm-password"
+          id="confirm-password"
+          formControlName="confirmPassword"
+        />
+        <small
+          *ngIf="
+            signupForm.get('confirmPassword')?.errors?.['required'] &&
+            signupForm.get('confirmPassword')?.touched
+          "
+          >*Confirm password is a required.</small
+        >
+        <small *ngIf="signupForm.hasError('passwordMismatch')">
+          Passwords do not match.
+        </small>
       </div>
       <div class="form-elements-button">
-        <button type="submit">Register</button>
+        <button
+          type="submit"
+          [disabled]="signupForm.invalid"
+          [class]="signupForm.valid ? 'activeButton' : 'inactiveButton'"
+        >
+          Register
+        </button>
       </div>
     </form>
     <div>
-        <p class="login-footer">
-            Already have an account ? <a routerLink="/">Login</a>
-        </p>
+      <p class="login-footer">
+        Already have an account ? <a routerLink="/">Login</a>
+      </p>
     </div>
   </div>
 </div>
