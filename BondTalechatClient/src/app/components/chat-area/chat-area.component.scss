@@ -1,3 +1,17 @@
-p{
-    color: black;
+ app-chat-header {
+  background-color: rgb(30, 194, 194) !important;
+  height: 7%;
+  display: block;
+}
+
+app-previous-chat-list-area {
+  background-color: aquamarine !important;
+  height: 78%;
+  display: block;
+}
+
+app-message-input-type-box{
+      background-color: rgb(10, 77, 54) !important;
+  height: 15%;
+  display: block;
 }
