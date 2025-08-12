@@ -1,7 +1,8 @@
-p{
+p {
     color: black;
 }
-.container{
+
+.container {
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -10,42 +11,85 @@ p{
     justify-content: space-between;
     align-items: center;
 }
-.left-sub-container{
+
+.left-sub-container {
     display: flex;
     flex-direction: row;
     gap: 10px;
     justify-content: center;
     align-items: center;
 }
-.right-sub-container{
+
+.right-sub-container {
     display: flex;
     flex-direction: row;
     gap: 10px;
 }
-.call-options{
-     display: flex;
+
+.call-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-option {
+    display: flex;
     flex-direction: row;
     gap: 10px;
+    padding: 2px;
+    justify-content: center;
+    align-items: center;
 }
-.right-option{
-      display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-i{
+
+i {
     color: var(--accent-text-color);
 }
-img{
+
+img {
     height: 50px;
     border-radius: 50%;
+    margin-top: 12px;
 }
-.chats,.shared-media{
-    color: var( --primary-text-color);
+
+.chats,
+.shared-media {
+    color: var(--primary-text-color);
+    padding: 2px;
 }
-.user-name{
+
+.user-name {
     color: var(--profile-name-color);
+    padding: 2px;
 }
+
 .chats-active {
-  color: var(--primary-text-color);
-  border-bottom: 2px solid var( --active-tab-border);
+    color: var(--primary-text-color);
+    border-bottom: 2px solid var(--active-tab-border);
+    padding: 2px;
+}
+
+.call-options {
+    border: 2px solid var(--separate-entities-color);
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.view-participant {
+    display: flex;
+    padding: 2px;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-tab {
+    border: 2px solid var(--separate-entities-color);
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.call-icon {
+    border-right: 2px solid var(--separate-entities-color);
+    padding: 5px;
+    padding-right: 10px;
 }
