@@ -22,7 +22,8 @@
 
 .box3{
   grid-area: user;
-  background-color: green;
+  background-color: var(--user-list-area-color);
+  border-right: 2px solid var(--separate-entities-color);
   overflow: auto;
 }
 
