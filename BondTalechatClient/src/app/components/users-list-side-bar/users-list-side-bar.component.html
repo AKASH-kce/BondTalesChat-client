@@ -1,3 +1,16 @@
 <div class="main-container">
-    
+    <div class="all-users" *ngFor="let user of users">
+        <div class="user">
+            <div class="user-profile"><img [src]="user.ProfileImageURl" alt=""></div>
+        </div>
+        <div class="user-content">
+            <div class="name-time">
+                <p class="user-name">{{user.name}}</p>
+                <p class="user-time">{{user.lastMessageTime}}</p>
+            </div>
+            <div class="last-message">
+                <p class="user-message">{{user.lastMessage}}</p>
+            </div>
+        </div>
+    </div>
 </div>
