@@ -3,7 +3,7 @@
   height: 100%;
   display: flex;
   justify-content: end;
-  background-color: var(--primary-deep);
+  background-color: var(--primary-soft);
   gap: 20px;
   padding-right: 20px ;
 }
@@ -26,7 +26,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--primary-rich);
+  // background-color: var(--primary-rich);
+  background-color: white;
   border-radius: 10px;
   overflow: hidden;
   padding: 0px 10px;  
@@ -39,7 +40,7 @@ img {
 }
 
 input {
-  background-color: var(--primary-rich);
+  // background-color: var(--primary-rich);
   border: none;
   outline: none;
   padding: 10px;

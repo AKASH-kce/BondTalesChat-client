@@ -10,16 +10,14 @@
 }
 
 .box1{
-  background-color: red;
+  background-color: var(--primary-soft);
   grid-area: lsb;
+  border-right: 2px solid rgba(15, 52, 96, 0.5);
 
 }
 
 .box2{
   grid-area: nb;
-  // background-color: blue;
-  // display: flex;
-  // justify-content: end; 
 }
 
 .box3{
