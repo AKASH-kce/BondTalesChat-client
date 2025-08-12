@@ -8,5 +8,6 @@ import { Component } from '@angular/core';
   styleUrl: './chat-header.component.scss'
 })
 export class ChatHeaderComponent {
-
+currentChatUserName:string="akash";
+ProfileImageURl:string="/images/profile.jpeg"
 }
