@@ -39,10 +39,12 @@ img{
     height: 50px;
     border-radius: 50%;
 }
-.user-name,.chats,.shared-media{
+.chats,.shared-media{
     color: var( --primary-text-color);
 }
-
+.user-name{
+    color: var(--profile-name-color);
+}
 .chats-active {
   color: var(--primary-text-color);
   border-bottom: 2px solid var( --active-tab-border);
