@@ -12,17 +12,17 @@
 
 .chat-header {
   grid-area: chatheader;
-  background-color: lightblue;
+  background-color: var(--chat-header-color);
 }
 
 .previous-chat {
   grid-area: previouschat;
-  background-color: lightgreen;
+  background-color: var( --chat-area-color);
   overflow-y: auto;
 }
 
 .message-input {
   grid-area: messageinput;
-  background-color: lightcoral;
+  background-color: var(--message-input-color);
   overflow-y: auto;
 }
