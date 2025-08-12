@@ -42,3 +42,8 @@ img{
 .user-name,.chats,.shared-media{
     color: var( --primary-text-color);
 }
+
+.chats-active {
+  color: var(--primary-text-color);
+  border-bottom: 2px solid var( --active-tab-border);
+}
