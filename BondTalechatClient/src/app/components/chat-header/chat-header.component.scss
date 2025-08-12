@@ -33,12 +33,12 @@ p{
     gap: 10px;
 }
 i{
-    color: black;
+    color: var(--accent-text-color);
 }
 img{
     height: 50px;
     border-radius: 50%;
 }
 .user-name,.chats,.shared-media{
-    color: black;
+    color: var( --primary-text-color);
 }

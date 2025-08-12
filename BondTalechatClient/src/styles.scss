@@ -23,6 +23,11 @@
   --chat-header-color: #3F5E72;
   --chat-area-color: #24343D;
   --message-input-color: #8B6F4E;
+
+  /*text colors*/
+  --primary-text-color: #EAEAEA;  /* Soft white for main readability */
+  --secondary-text-color: #C0C6CC; /* Muted silver-gray for less important text */
+  --accent-text-color: #D4AF37;   /* Gold for highlights, usernames, or icons */
 }
 
 * {
