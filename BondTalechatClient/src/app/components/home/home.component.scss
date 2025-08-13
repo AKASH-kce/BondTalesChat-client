@@ -10,7 +10,8 @@
 }
 
 .box1{
-  background-color: var(--primary-soft);
+  // background-color: var(--primary-soft);
+  background-color: var(--chat-area-color);
   grid-area: lsb;
   border-right: 2px solid rgba(15, 52, 96, 0.5);
 
@@ -29,6 +30,5 @@
 
 .box4{
   grid-area: chat;
-  background-color: yellow;
   overflow: auto;
 }

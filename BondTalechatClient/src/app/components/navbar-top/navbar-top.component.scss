@@ -3,7 +3,8 @@
   height: 100%;
   display: flex;
   justify-content: end;
-  background-color: var(--primary-soft);
+  // background-color: var(--primary-soft);
+  background-color: var(--chat-area-color);
   gap: 20px;
   padding-right: 20px ;
 }
@@ -44,7 +45,8 @@ input {
   border: none;
   outline: none;
   padding: 10px;
-  width: 400px;
+  width: 500px;
+  color: black;
 }
 
 .inner-nav-container{
@@ -53,4 +55,8 @@ input {
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+}
+
+i{
+  cursor: pointer;
 }
