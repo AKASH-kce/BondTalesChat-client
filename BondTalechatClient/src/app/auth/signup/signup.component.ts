@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { passwordMatchValidator } from '../../validators/password-match.validator';
 import { UserService } from '../../Services/user.service';
+import { User } from '../../Models/user.model';
 @Component({
   selector: 'app-signup',
   standalone: true,
@@ -41,19 +42,24 @@ export class SignupComponent implements OnInit {
 
   onFormSubmit(): void {
     if (this.signupForm.valid) {
-      //const formData = this.signupForm.value;
-      const { username, email, password } = this.signupForm.value;
-      //console.log('Signup data submitted:', formData);
-      this.userService.register(username, email, password).subscribe({
+      // const { username, email, password } = this.signupForm.value;
+      const user: User = {
+        username: this.signupForm.value.username!,
+        email: this.signupForm.value.email!,
+        password: this.signupForm.value.password!,
+      };
+      this.userService.register(user).subscribe({
         next: (response) => {
-          console.log('Registration successful', response);
-          this.navigateToHome(); // Navigate to home on successful registration
+          if (response.success) {
+            console.log('Registration successful', response);
+            this.navigateToHome();
+          }
         },
         error: (error) => {
-          console.error('Registration failed', error);
-          alert('Registration failed. Please try again.');
+          console.error('Registration failed', error.error.message);
+          alert(error.error.message);
         },
-      })
+      });
     } else {
       console.log('Form is invalid', this.signupForm);
     }
