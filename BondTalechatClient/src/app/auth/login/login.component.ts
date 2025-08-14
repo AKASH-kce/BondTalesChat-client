@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { UserService } from '../../Services/user.service';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -18,12 +19,12 @@ import { CommonModule } from '@angular/common';
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private userService: UserService) {}
 
   ngOnInit(): void {
     // Initialization logic can go here
     this.loginForm = new FormGroup({
-      username: new FormControl('', Validators.required),
+      email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', Validators.required),
     });
   }
@@ -34,9 +35,21 @@ export class LoginComponent implements OnInit {
 
   onFormSubmit(): void {
     if (this.loginForm.valid) {
-      const formData = this.loginForm;
-      console.log('Login data submitted:', formData);
-      this.navigateToHome();
+      const { email, password } = this.loginForm.value;
+
+      this.userService.login(email, password).subscribe({
+        next: (response) =>{
+          if(response.success)
+          {
+            console.log("Login Successfull", response);
+            this.navigateToHome();
+          }
+        },
+        error: (error) =>{
+          console.error('Login failed', error.error.message);
+          alert(error.error.message);
+        }
+      })
       
     } else {
       console.error('Form is invalid', this.loginForm);
