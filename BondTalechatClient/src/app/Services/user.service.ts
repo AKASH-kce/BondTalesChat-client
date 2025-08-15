@@ -19,17 +19,18 @@ export interface ApiResponse {
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private baseUrl = `${environment.apiUrl}`;
-  private currentUserSubject = new BehaviorSubject<any>(null);
+  public currentUserSubject = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient) {
-    // const token = localStorage.getItem('token');
-    // const user = localStorage.getItem('user');
-
-    // if (token && user) {
-    // this.currentUserSubject.next(JSON.parse(user));
-    //}
-
     this.verifyAuth().subscribe();
+  }
+
+  getUser(): User {
+    return this.currentUserSubject.value;
+  }
+
+  getUserName(): string {
+    return this.currentUserSubject.value?.username || '';
   }
 
   register(user: User): Observable<ApiResponse> {
@@ -51,28 +52,16 @@ export class UserService {
       .pipe(
         tap((res) => {
           if (res.success && res.token && res.user) {
-            // localStorage.setItem('token', res.token);
-            // localStorage.setItem('user', JSON.stringify(res.user));
             this.currentUserSubject.next(res.user);
           }
         })
       );
   }
 
-  // local storage related changes.
-  // getToken() {
-  //   return localStorage.getItem('token');
-  // }
-  // logout() {
-  //   localStorage.removeItem('token');
-  //   localStorage.removeItem('user');
-  //   this.currentUserSubject.next(null);
-  // }
-
-  logout(): Observable<void> {
+  logout(): Observable<ApiResponse> {
     return this.http
-      .post<void>(
-        `${this.baseUrl}/logout`,
+      .post<ApiResponse>(
+        `${this.baseUrl}/User/logout`,
         {},
         {
           withCredentials: true,
@@ -86,7 +75,6 @@ export class UserService {
   }
 
   isLoggedIn() {
-    // return !!this.getToken();
     return this.currentUserSubject.value !== null;
   }
 

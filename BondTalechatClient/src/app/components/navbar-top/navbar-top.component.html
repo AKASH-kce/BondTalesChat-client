@@ -19,10 +19,11 @@
       <!-- <img src="/images/maximizewindow.png" alt="maximizewindow" /> -->
       <!-- <img src="/images/closenew.png" alt="closenew" /> -->
        <i class="fa-solid fa-ellipsis"></i>
-       <i class="fa-regular fa-user"></i>
+       <!-- <i class="fa-regular fa-user"></i> -->
+       <span style="color: black;">{{ username }}</span>
        <i class="fa-solid fa-minus"></i>
        <i class="fa-regular fa-window-maximize"></i>
-       <i class="fa-solid fa-xmark"></i>
+       <i class="fa-solid fa-xmark" (click)="onLogout()" ></i>
     </div>
   </div>
 </div>
