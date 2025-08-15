@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../Services/user.service';
 import { Router } from '@angular/router';
 import { User } from '../../Models/user.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar-top',
@@ -12,13 +13,19 @@ import { User } from '../../Models/user.model';
 })
 export class NavbarTopComponent implements OnInit {
   username?: string | null;
+  private userSubscription!: Subscription;
   constructor(private userService: UserService, private router: Router) {}
 
   ngOnInit(): void {
-    // this.userService.currentUserSubject.subscribe((user: User) => {this.username = user?.username || null});
-    this.username = this.userService.getUserName();
-    var user = this.userService.getUser();
-    console.log("This is the user");
+    // var users = this.userService.getUser();
+    // console.log("This is the user"+ users.username);
+
+    this.userSubscription = this.userService.currentUserSubject.subscribe(
+      user => {
+        this.username = user?.username || null;
+        console.log("User updated:", user);
+      }
+    )
   }
 
   navigateToUserProfile(): void {

@@ -22,6 +22,10 @@ export class UserService {
   public currentUserSubject = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient) {
+    this.loadUserData();
+  }
+
+  public loadUserData() {
     this.verifyAuth().subscribe();
   }
 
