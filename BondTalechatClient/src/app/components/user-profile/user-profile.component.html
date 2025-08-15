@@ -1,1 +1,130 @@
-<p>user-profile works!</p>
+<div class="backgrounds">
+  <div class="profile-header">
+    <h2>Edit Profile</h2>
+    <div class="profile-image-section">
+      <img
+        src="https://via.placeholder.com/150"
+        alt="Profile Picture"
+        id="profile-image-preview"
+      />
+      <div class="image-controls">
+        <input
+          type="file"
+          id="profile-image"
+          accept="image/*"
+          style="display: none"
+        />
+        <button
+          type="button"
+          class="btn-upload"
+          onclick="document.getElementById('profile-image').click()"
+        >
+          Change Photo
+        </button>
+        <button type="button" class="btn-remove">Remove</button>
+      </div>
+    </div>
+  </div>
+  <form [formGroup]="profileForm">
+    <div class="form-columns">
+      <!-- Left Column -->
+      <div class="form-column">
+        <div class="form-elements">
+          <label for="username">Username</label>
+          <input type="text" id="username" formControlName="username" />
+          <small
+            *ngIf="
+              profileForm.get('username')?.invalid &&
+              profileForm.get('username')?.touched
+            "
+          >
+            *Username is required.
+          </small>
+        </div>
+        <div class="form-elements">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            [readOnly]="true"
+          />
+        </div>
+        <div class="form-elements">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" formControlName="phoneNumber" />
+          <small
+            *ngIf="
+            profileForm.get('phoneNumber')?.errors?.['required'] &&
+            profileForm.get('phoneNumber')?.touched
+          "
+          >
+            *Phone number is required.
+          </small>
+          <small
+            *ngIf="profileForm.get('phoneNumber')?.errors?.['pattern'] && profileForm.get('phoneNumber')?.touched"
+          >
+            *Invalid phone number.
+          </small>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="form-column">
+        <div class="form-elements">
+          <label for="current-password">Current Password</label>
+          <input
+            type="password"
+            id="current-password"
+            formControlName="password"
+          />
+          <small
+            *ngIf="
+              profileForm.get('password')?.invalid &&
+              profileForm.get('password')?.touched
+            "
+            >*password is a required.</small
+          >
+        </div>
+        <div class="form-elements">
+          <label for="new-password">New Password</label>
+          <input
+            type="password"
+            id="new-password"
+            formControlName="newPassword"
+          />
+        </div>
+        <div class="form-elements">
+          <label for="confirm-password">Confirm New Password</label>
+          <input
+            type="password"
+            id="confirm-password"
+            formControlName="confirmNewPassword"
+          />
+          <small
+            *ngIf="
+              profileForm.hasError('passwordMismatch') &&
+              profileForm.get('confirmNewPassword')?.touched
+            "
+          >
+            Passwords do not match.
+          </small>
+          <!-- <small *ngIf="profileForm.hasError('requireOldPassword')">
+            If trying to change the password, old password is required.
+          </small> -->
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button
+        type="submit"
+        class="btn-save"
+        [disabled]="profileForm.invalid"
+        [class]="profileForm.valid ? 'activeButton' : 'inactiveButton'"
+      >
+        Save Changes
+      </button>
+      <button type="button" class="btn-cancel" (click)="navigateToHome()">Cancel</button>
+    </div>
+  </form>
+</div>

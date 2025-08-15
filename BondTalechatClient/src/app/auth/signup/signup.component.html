@@ -11,7 +11,7 @@
               signupForm.get('email')?.invalid &&
               signupForm.get('email')?.touched
             "
-            >*Email is a required.</small
+            >*Email is required.</small
           >
         </div>
         <label for="username">Username</label>
@@ -29,6 +29,23 @@
           >*username is a required.</small
         >
       </div>
+      <div class="form-elements">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" formControlName="phoneNumber" />
+          <small
+            *ngIf="
+            signupForm.get('phoneNumber')?.errors?.['required'] &&
+            signupForm.get('phoneNumber')?.touched
+          "
+          >
+            *Phone number is required.
+          </small>
+          <small
+            *ngIf="signupForm.get('phoneNumber')?.errors?.['pattern'] && signupForm.get('phoneNumber')?.touched"
+          >
+            *Invalid phone number.
+          </small>
+        </div>
       <div class="form-elements">
         <label for="password">Password</label>
         <input
@@ -60,7 +77,8 @@
           "
           >*Confirm password is a required.</small
         >
-        <small *ngIf="signupForm.hasError('passwordMismatch')">
+        <small *ngIf="signupForm.hasError('passwordMismatch') &&
+            signupForm.get('confirmPassword')?.touched">
           Passwords do not match.
         </small>
       </div>

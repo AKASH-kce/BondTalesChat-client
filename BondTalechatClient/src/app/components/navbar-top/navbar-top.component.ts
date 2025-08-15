@@ -18,7 +18,11 @@ export class NavbarTopComponent implements OnInit {
     // this.userService.currentUserSubject.subscribe((user: User) => {this.username = user?.username || null});
     this.username = this.userService.getUserName();
     var user = this.userService.getUser();
-    console.log("This is the user  ");
+    console.log("This is the user");
+  }
+
+  navigateToUserProfile(): void {
+    this.router.navigate(['/userProfile']);
   }
 
   onLogout(): void {
