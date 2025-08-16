@@ -1,6 +1,6 @@
 <div class="message-input-main">
   <div class="message-input-area">
-    <input name="" id="" placeholder="Enter your message..."/>
+    <input name="" id="" placeholder="Enter your message..." [(ngModel)]="messageText"/>
     <div class="input-field-elements">
       <!-- <img src="/images/smiley.png" alt="" />
       <img src="/images/attach.png" alt="" />
@@ -9,7 +9,7 @@
       <i class="fa-solid fa-paperclip"></i>
       <i class="fa-solid fa-plus"></i>
       <!-- <img class="send-image" src="/images/send.png" alt="" /> -->
-       <i class="fa-regular fa-paper-plane send-image"></i>
+       <i class="fa-regular fa-paper-plane send-image" (click)="send()"></i>
     </div>
   </div>
 </div>
