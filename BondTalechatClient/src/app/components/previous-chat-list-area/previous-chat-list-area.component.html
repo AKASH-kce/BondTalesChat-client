@@ -6,7 +6,8 @@
       <img class="avatar" [src]="ProfileImageURl" alt="{{ msg.sender }} avatar" />
 
       <div class="message" [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'">
-        {{ msg.messageText || (msg.sender === 'user' ? 'User message' : 'Bot message') }}
+        {{ msg.messageText || (msg.sender === 'user' ? 'User message' : 'Bot message') }}<br>
+        <small class="time">{{ msg.sentAt | date:'shortTime' }}</small>
       </div>
     </div>
 

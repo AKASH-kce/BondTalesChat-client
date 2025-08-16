@@ -18,7 +18,7 @@ constructor( private chatService:ChatService){}
   }
 send(){
   if(this.messageText.trim()!==''){
-    this.chatService.sendMessage(1,1,this.messageText);
+    this.chatService.sendMessage(2,1,this.messageText);
     this.messageText=''
   }
 
