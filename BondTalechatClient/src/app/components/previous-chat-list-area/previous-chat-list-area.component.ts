@@ -17,13 +17,21 @@ export class PreviousChatListAreaComponent implements OnInit, OnDestroy {
   }
   messages: any[] = [];
   private messageSub?: Subscription;
-  ngOnInit(): void {
+
+async ngOnInit(): Promise<void> {
+    await this.chatService.startConnection(); // wait until connected
+
+    // Fetch all messages after connection is established
+    this.messages = await this.chatService.getAllMessageOfCurrentLoginUser(1);
+    console.log('All messages:', this.messages);
+
     this.messageSub = this.chatService.message$.subscribe((msg: any) => {
-      if (msg) {
-        this.messages.push(msg);
-      }
-    })
-  }
+        if (msg) {
+            this.messages.push(msg);
+        }
+    });
+}
+
   ngOnDestroy(): void {
     this.messageSub?.unsubscribe();
   }
