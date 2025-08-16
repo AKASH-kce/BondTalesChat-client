@@ -1,10 +1,24 @@
-<div class="main-container">
-    <div class="messaged-display" *ngFor="let message of messages">
-     <div class="listner-msg">
-      <p>{{message.messageText}}</p>
-    </div>
-    <div class="sender-msg">
+<div class="chat-window">
+  <div class="chat-messages" #chatMessages>
 
+    <!-- Display messages -->
+    <div *ngFor="let msg of messages" class="message-row" [ngClass]="msg.sender === 'user' ? 'user' : 'bot'">
+      <img class="avatar" [src]="ProfileImageURl" alt="{{ msg.sender }} avatar" />
+
+      <div class="message" [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'">
+        {{ msg.messageText || (msg.sender === 'user' ? 'User message' : 'Bot message') }}
+      </div>
     </div>
+
+    <!-- Typing indicator -->
+    <div class="message-row bot" *ngIf="isTyping">
+      <img class="avatar" [src]="ProfileImageURl" alt="bot avatar" />
+      <div class="message bot-message typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
+
+  </div>
 </div>
