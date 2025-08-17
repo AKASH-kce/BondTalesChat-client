@@ -13,6 +13,7 @@ export interface ApiResponse {
     id: number;
     username: string;
     email: string;
+    phoneNumber: string;
   };
 }
 
@@ -37,10 +38,6 @@ export class UserService {
     return this.currentUserSubject.value?.username || '';
   }
 
-  // register(user: User): Observable<ApiResponse> {
-  //   return this.http.post<ApiResponse>(`${this.baseUrl}/User/register`, user);
-  // }
-
   register(user: User): Observable<ApiResponse> {
     return this.http
       .post<ApiResponse>(`${this.baseUrl}/User/register`, user, {
@@ -52,11 +49,7 @@ export class UserService {
       .pipe(
         tap((res) => {
           if (res.success && res.token && res.user) {
-            // Save user and token (if needed)
             this.currentUserSubject.next(res.user);
-
-            // Optional: Save token to localStorage/sessionStorage
-            // localStorage.setItem('authToken', res.token);
           }
         })
       );
@@ -114,6 +107,31 @@ export class UserService {
             this.currentUserSubject.next(res.user);
           } else {
             this.currentUserSubject.next(null);
+          }
+        })
+      );
+  }
+
+  // Services/user.service.ts
+
+  updateProfile(data: {
+    username: string;
+    email: string;
+    phoneNumber?: string;
+    currentPassword: string;
+    newPassword?: string | null;
+  }): Observable<ApiResponse> {
+    return this.http
+      .put<ApiResponse>(`${this.baseUrl}/User/update`, data, {
+        withCredentials: true,
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+        }),
+      })
+      .pipe(
+        tap((res) => {
+          if (res.success && res.user) {
+            this.currentUserSubject.next(res.user); // Update global state
           }
         })
       );
