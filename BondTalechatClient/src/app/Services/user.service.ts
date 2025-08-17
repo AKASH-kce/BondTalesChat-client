@@ -29,7 +29,6 @@ export class UserService {
 
   public loadUserData() {
     this.verifyAuth().subscribe();
-    
   }
 
   getUser(): User {
@@ -113,8 +112,6 @@ export class UserService {
         })
       );
   }
-
-  
 
   // Services/user.service.ts
 
