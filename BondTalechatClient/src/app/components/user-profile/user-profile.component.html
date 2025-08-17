@@ -3,25 +3,39 @@
     <h2>Edit Profile</h2>
     <div class="profile-image-section">
       <img
-        src="https://via.placeholder.com/150"
+        [src]="selectedImage || 'https://via.placeholder.com/150'"
         alt="Profile Picture"
         id="profile-image-preview"
+        (click)="fileInput.click()"
       />
       <div class="image-controls">
         <input
           type="file"
-          id="profile-image"
+          #fileInput
+          (change)="onFileSelected($event)"
           accept="image/*"
           style="display: none"
         />
-        <button
+        <!-- <button
           type="button"
           class="btn-upload"
           onclick="document.getElementById('profile-image').click()"
         >
           Change Photo
+        </button> -->
+         <button type="button" class="btn-upload" [disabled]="isUploading">
+          {{ isUploading ? 'Uploading...' : 'Change Photo' }}
         </button>
-        <button type="button" class="btn-remove">Remove</button>
+        <!-- <button type="button" class="btn-remove">Remove</button> -->
+         <!-- Remove Button -->
+        <button
+          type="button"
+          class="btn-remove"
+          (click)="removeProfilePicture()"
+          [disabled]="!selectedImage || selectedImage.includes('placeholder')"
+        >
+          Remove
+        </button>
       </div>
     </div>
   </div>

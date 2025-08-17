@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { tap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { User } from '../Models/user.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 
 export interface ApiResponse {
   success: boolean;
@@ -14,6 +14,7 @@ export interface ApiResponse {
     username: string;
     email: string;
     phoneNumber: string;
+    profilePicture: string;
   };
 }
 
@@ -28,6 +29,7 @@ export class UserService {
 
   public loadUserData() {
     this.verifyAuth().subscribe();
+    
   }
 
   getUser(): User {
@@ -112,6 +114,8 @@ export class UserService {
       );
   }
 
+  
+
   // Services/user.service.ts
 
   updateProfile(data: {
@@ -133,6 +137,81 @@ export class UserService {
           if (res.success && res.user) {
             this.currentUserSubject.next(res.user); // Update global state
           }
+        })
+      );
+  }
+
+  // Add this method
+  updateProfilePicture(imageFile: File | null): Observable<ApiResponse> {
+    // Case 1: Remove image (set to null)
+    if (imageFile === null) {
+      return this.http
+        .put<ApiResponse>(
+          `${this.baseUrl}/User/update-profile-picture`,
+          { profilePictureUrl: null },
+          {
+            withCredentials: true,
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+          }
+        )
+        .pipe(
+          tap((res) => {
+            if (res.success && res.user) {
+              this.currentUserSubject.next(res.user);
+            }
+          }),
+          catchError((error) => {
+            console.error('Failed to remove profile picture', error);
+            return throwError(
+              () => new Error('Could not remove profile picture.')
+            );
+          })
+        );
+    }
+
+    // Case 2: Upload new image
+    const imgbbApiKey = '7b5a1be1baf098bc5f38a6a1a8c26c83';
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('key', imgbbApiKey);
+
+    return this.http
+      .post<any>('https://api.imgbb.com/1/upload', formData) // ← Fixed: removed extra space
+      .pipe(
+        switchMap((imgbbResponse) => {
+          if (!imgbbResponse?.data?.url) {
+            return throwError(
+              () => new Error('Failed to upload to ImgBB: Invalid response')
+            );
+          }
+
+          const imageUrl = imgbbResponse.data.url;
+
+          // Update backend with new image URL
+          return this.http
+            .put<ApiResponse>(
+              `${this.baseUrl}/User/update-profile-picture`,
+              { profilePictureUrl: imageUrl },
+              {
+                withCredentials: true,
+                headers: new HttpHeaders({
+                  'Content-Type': 'application/json',
+                }),
+              }
+            )
+            .pipe(
+              tap((res) => {
+                if (res.success && res.user) {
+                  this.currentUserSubject.next(res.user);
+                }
+              })
+            );
+        }),
+        catchError((error) => {
+          console.error('Profile picture upload failed', error);
+          return throwError(
+            () => new Error('Could not upload image. Please try again.')
+          );
         })
       );
   }

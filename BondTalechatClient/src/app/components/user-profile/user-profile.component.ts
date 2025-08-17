@@ -25,7 +25,9 @@ export class UserProfileComponent implements OnInit {
   profileForm!: FormGroup;
   private userSubscription!: Subscription;
   isLoading = false;
-  
+  selectedImage: string | null = null;
+  isUploading = false;
+
   constructor(private router: Router, private userService: UserService) {}
 
   ngOnInit(): void {
@@ -52,22 +54,23 @@ export class UserProfileComponent implements OnInit {
 
     this.userSubscription = this.userService.currentUserSubject.subscribe({
       next: (user) => {
-        if( user)
-        {
+        if (user) {
           this.patchForm(user);
+          this.selectedImage =
+            user.profilePicture || 'https://via.placeholder.com/150';
         }
-      }
-    })
+      },
+    });
+    console.log("this is the selected Image: "+ this.selectedImage);
   }
 
   private patchForm(user: any): void {
     this.profileForm.patchValue({
       username: user.username,
       email: user.email,
-      phoneNumber: user.phoneNumber
-    })
+      phoneNumber: user.phoneNumber,
+    });
   }
-
 
   navigateToHome(): void {
     this.router.navigate(['/home']);
@@ -88,7 +91,7 @@ export class UserProfileComponent implements OnInit {
       email: formValue.email,
       phoneNumber: formValue.phoneNumber,
       currentPassword: formValue.password,
-      newPassword: formValue.newPassword || null
+      newPassword: formValue.newPassword || null,
     };
 
     this.userService.updateProfile(payload).subscribe({
@@ -100,7 +103,7 @@ export class UserProfileComponent implements OnInit {
           this.profileForm.patchValue({
             password: '',
             newPassword: '',
-            confirmNewPassword: ''
+            confirmNewPassword: '',
           });
           this.profileForm.markAsPristine();
         } else {
@@ -111,8 +114,57 @@ export class UserProfileComponent implements OnInit {
         this.isLoading = false;
         console.error('Update failed', err);
         alert('❌ Failed to update profile. Please try again.');
-      }
+      },
     });
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      // Preview image
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedImage = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+
+      // Upload to ImgBB → then update profile picture
+      this.uploadProfilePicture(file);
+    }
+  }
+
+  uploadProfilePicture(file: File): void {
+    this.isUploading = true;
+
+    this.userService.updateProfilePicture(file).subscribe({
+      next: (res) => {
+        this.isUploading = false;
+        if (res.success) {
+          alert('✅ Profile picture updated!');
+        }
+      },
+      error: (err) => {
+        this.isUploading = false;
+        console.error('Upload failed', err);
+        alert('❌ Failed to upload image. Please try again.');
+      },
+    });
+  }
+
+  removeProfilePicture(): void {
+    if (confirm('Are you sure you want to remove your profile picture?')) {
+      // Just set to null on backend
+      this.userService.updateProfilePicture(null).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.selectedImage = 'https://via.placeholder.com/150';
+          }
+        },
+        error: () => {
+          alert('Failed to remove picture.');
+        }
+      });
+    }
   }
 
 }
