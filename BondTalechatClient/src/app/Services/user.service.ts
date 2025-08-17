@@ -10,7 +10,7 @@ export interface ApiResponse {
   message: string;
   token?: string;
   user?: {
-    id: number;
+    userId: number;
     username: string;
     email: string;
     phoneNumber: string;
@@ -25,6 +25,7 @@ export class UserService {
 
   constructor(private http: HttpClient) {
     this.loadUserData();
+
   }
 
   public loadUserData() {
@@ -50,6 +51,7 @@ export class UserService {
       .pipe(
         tap((res) => {
           if (res.success && res.token && res.user) {
+            localStorage.setItem('authToken',res.token);
             this.currentUserSubject.next(res.user);
           }
         })
