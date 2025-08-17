@@ -48,6 +48,7 @@ export class SignupComponent implements OnInit {
         username: this.signupForm.value.username!,
         email: this.signupForm.value.email!,
         password: this.signupForm.value.password!,
+        phoneNumber: this.signupForm.value.phoneNumber!
       };
       this.userService.register(user).subscribe({
         next: (response) => {
