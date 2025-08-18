@@ -3,7 +3,10 @@
     <h2>Edit Profile</h2>
     <div class="profile-image-section">
       <img
-        [src]="selectedImage || 'https://via.placeholder.com/150'"
+        [src]="
+          selectedImage ||
+          'https://static.vecteezy.com/system/resources/thumbnails/029/271/062/small_2x/avatar-profile-icon-in-flat-style-male-user-profile-illustration-on-isolated-background-man-profile-sign-business-concept-vector.jpg'
+        "
         alt="Profile Picture"
         id="profile-image-preview"
         (click)="fileInput.click()"
@@ -23,11 +26,11 @@
         >
           Change Photo
         </button> -->
-         <button type="button" class="btn-upload" [disabled]="isUploading">
-          {{ isUploading ? 'Uploading...' : 'Change Photo' }}
+        <button type="button" class="btn-upload" [disabled]="isUploading">
+          {{ isUploading ? "Uploading..." : "Change Photo" }}
         </button>
         <!-- <button type="button" class="btn-remove">Remove</button> -->
-         <!-- Remove Button -->
+        <!-- Remove Button -->
         <button
           type="button"
           class="btn-remove"
@@ -138,7 +141,9 @@
       >
         Save Changes
       </button>
-      <button type="button" class="btn-cancel" (click)="navigateToHome()">Cancel</button>
+      <button type="button" class="btn-cancel" (click)="navigateToHome()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>

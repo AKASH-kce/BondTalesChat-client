@@ -27,6 +27,7 @@ export class UserProfileComponent implements OnInit {
   isLoading = false;
   selectedImage: string | null = null;
   isUploading = false;
+  currentUserId!: number;
 
   constructor(private router: Router, private userService: UserService) {}
 
@@ -57,11 +58,13 @@ export class UserProfileComponent implements OnInit {
         if (user) {
           this.patchForm(user);
           this.selectedImage =
-            user.profilePicture || 'https://via.placeholder.com/150';
+            user.profilePicture ||
+            'https://static.vecteezy.com/system/resources/thumbnails/029/271/062/small_2x/avatar-profile-icon-in-flat-style-male-user-profile-illustration-on-isolated-background-man-profile-sign-business-concept-vector.jpg';
+          this.currentUserId = user.id;
         }
       },
     });
-    console.log("this is the selected Image: "+ this.selectedImage);
+    console.log('this is the selected Image: ' + this.selectedImage);
   }
 
   private patchForm(user: any): void {
@@ -87,6 +90,7 @@ export class UserProfileComponent implements OnInit {
     const formValue = this.profileForm.value;
 
     const payload = {
+      userId: this.currentUserId,
       username: formValue.username,
       email: formValue.email,
       phoneNumber: formValue.phoneNumber,
@@ -157,14 +161,14 @@ export class UserProfileComponent implements OnInit {
       this.userService.updateProfilePicture(null).subscribe({
         next: (res) => {
           if (res.success) {
-            this.selectedImage = 'https://via.placeholder.com/150';
+            this.selectedImage =
+              'https://static.vecteezy.com/system/resources/thumbnails/029/271/062/small_2x/avatar-profile-icon-in-flat-style-male-user-profile-illustration-on-isolated-background-man-profile-sign-business-concept-vector.jpg';
           }
         },
         error: () => {
           alert('Failed to remove picture.');
-        }
+        },
       });
     }
   }
-
 }
