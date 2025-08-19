@@ -1,5 +1,5 @@
 <div class="main-container">
-    <div class="all-users" *ngFor="let user of users">
+    <div class="all-users" *ngFor="let user of users" (click)="userClicked(user,$event)">
         <div class="user">
             <div class="user-profile"><img [src]="user.ProfileImageURl" alt=""></div>
         </div>

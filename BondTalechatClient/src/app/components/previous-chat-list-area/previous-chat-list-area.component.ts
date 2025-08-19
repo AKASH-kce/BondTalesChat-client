@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ChatService } from '../../services/chat.serivce';
+import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChatService } from '../../Services/chat.serivce';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +17,7 @@ export class PreviousChatListAreaComponent implements OnInit, OnDestroy {
   isTyping: boolean = false;
   ProfileImageURl: string = "/images/profile.jpeg";
   private messageSub?: Subscription;
-
+   
   constructor(private chatService: ChatService,private userservice:UserService) {}
 
   async ngOnInit(): Promise<void> {
@@ -25,8 +25,6 @@ export class PreviousChatListAreaComponent implements OnInit, OnDestroy {
 
     // Fetch all messages after connection is established
     this.messages = await this.chatService.getAllMessageOfCurrentLoginUser(1);
-    console.log('All messages:', this.messages);
-  console.log("current user subject :"+this.userservice.currentUserSubject.value)
   this.userservice.currentUserSubject.subscribe(user => {
   console.log("Current user data:", user);
 });
