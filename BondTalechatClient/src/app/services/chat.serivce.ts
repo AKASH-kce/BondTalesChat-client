@@ -49,7 +49,7 @@ export class ChatService {
         }
     }
 
-    public async getAllMessageOfCurrentLoginUser(loginUserId: number): Promise<any[]> {
+    public async getAllMessageOfCurrentLoginUser(loginUserId: number|unknown): Promise<any[]> {
         await this.waitUntilConnected();
 
         try {

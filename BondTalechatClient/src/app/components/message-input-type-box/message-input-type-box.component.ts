@@ -4,6 +4,8 @@ import { Component, OnInit } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../Services/user.service';
+import { currentUserDetialsService } from '../../Services/current-user-detials-service';
+import { IUserDetial } from '../../Models/user.detials.model';
 @Component({
   selector: 'app-message-input-type-box',
   standalone: true,
@@ -14,14 +16,19 @@ import { UserService } from '../../Services/user.service';
 export class MessageInputTypeBoxComponent implements OnInit {
   messageText: string = "";
   userSubscription: any;
-  userId: number = 0;
-  constructor(private chatService: ChatService, private userService: UserService) { }
+  userId: number | unknown;
+  constructor(private chatService: ChatService, private userService: UserService, private currentUserDetialService: currentUserDetialsService) { }
   ngOnInit(): void {
     this.chatService.startConnection();
-    this.userSubscription = this.userService.currentUserSubject.subscribe(
-      user => {
-        this.userId = user?.userId ?? 0;
-      });
+    // this.userSubscription = this.userService.currentUserSubject.subscribe(
+    //   user => {
+    //     this.userId = user?.userId ?? 0;
+    //   });
+    this.currentUserDetialService.getMessage().subscribe({
+      next: (data: IUserDetial) => {
+        this.userId = data.user.userId ?? "unknown";
+      }
+    })
   }
   send() {
     if (this.messageText.trim() !== '') {
