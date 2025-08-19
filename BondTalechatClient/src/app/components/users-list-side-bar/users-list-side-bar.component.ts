@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { UserService } from '../../Services/user.service';
+import { ChatService } from '../../services/chat.serivce';
 export interface IUserMessage {
   ProfileImageURl: string;
   name: string;
@@ -18,21 +20,19 @@ export class UsersListSideBarComponent implements OnInit {
   ProfileImageURl: string = "/images/profile.jpeg"
   users: IUserMessage[] = [];
 
-  ngOnInit(): void {
-    this.users.push(
-      {
-        name: "akash",
-        ProfileImageURl: this.ProfileImageURl,
-        lastMessageTime: "time",
-        lastMessage: "last message"
-      },
-      {
-        name: "koushiik",
-        ProfileImageURl: this.ProfileImageURl,
-        lastMessageTime: "time",
-        lastMessage: "last message"
-      }
-    )
+  constructor(private chatService: ChatService) {
+
+  }
+  async ngOnInit(): Promise<void> {
+    const userList = await this.chatService.getAllUserList();
+    console.log("Users from SignalR:", userList);
+
+    this.users = userList.map(u => ({
+      name: u.username,
+      ProfileImageURl: u.profilePicture ?? this.ProfileImageURl,
+      lastMessageTime: "time",
+      lastMessage: "last message"
+    }));
   }
 
 }

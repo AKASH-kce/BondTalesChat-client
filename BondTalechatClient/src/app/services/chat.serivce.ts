@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
+import { User } from '../Models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -52,11 +53,23 @@ export class ChatService {
         await this.waitUntilConnected();
 
         try {
-            const allMsg = await this.hubConnection.invoke<any[]>('GetLoginUserAllMessagesByID', loginUserId);
+            const id=Number(loginUserId);
+            const allMsg = await this.hubConnection.invoke<any[]>('GetLoginUserAllMessagesByID', id);
             return allMsg;
         } catch (err) {
             console.error('Error fetching messages:', err);
             return [];
         }
     }
+     public async getAllUserList():Promise<User[]>{
+        await this.waitUntilConnected();
+        try{
+            const allUsers=await this.hubConnection.invoke<any[]>('GetAllUsers')
+            return allUsers;
+        }
+        catch(err){
+            console.log("error in getting user list:"+err);
+            return [];
+        }
+     }
 }
