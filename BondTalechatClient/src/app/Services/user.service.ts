@@ -123,7 +123,7 @@ export class UserService {
     newPassword?: string | null;
   }): Observable<ApiResponse> {
     return this.http
-      .put<ApiResponse>(`${this.baseUrl}/User/update`, data, {
+      .put<ApiResponse>(`${this.baseUrl}/UserProfile/update`, data, {
         withCredentials: true,
         headers: new HttpHeaders({
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export class UserService {
     if (imageFile === null) {
       return this.http
         .put<ApiResponse>(
-          `${this.baseUrl}/User/update-profile-picture`,
+          `${this.baseUrl}/UserProfile/update-profile-picture`,
           { profilePictureUrl: null },
           {
             withCredentials: true,
@@ -187,7 +187,7 @@ export class UserService {
           // Update backend with new image URL
           return this.http
             .put<ApiResponse>(
-              `${this.baseUrl}/User/update-profile-picture`,
+              `${this.baseUrl}/UserProfile/update-profile-picture`,
               { profilePictureUrl: imageUrl },
               {
                 withCredentials: true,
@@ -211,5 +211,31 @@ export class UserService {
           );
         })
       );
+  }
+
+  // Services/user.service.ts
+
+  forgotPassword(email: string, username: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/ForgotPassword/forgot-password`,
+      { email, username },
+      { withCredentials: true }
+    );
+  }
+
+  verifyOtp(email: string, otp: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/ForgotPassword/verify-otp`,
+      { email, otp },
+      { withCredentials: true }
+    );
+  }
+
+  resetPassword(email: string, newPassword: string): Observable<ApiResponse> {
+    return this.http.put<ApiResponse>(
+      `${this.baseUrl}/ForgotPassword/reset-password`,
+      { email, newPassword },
+      { withCredentials: true }
+    );
   }
 }
