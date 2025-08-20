@@ -10,7 +10,7 @@ export class currentUserDetialsService {
   constructor() { }
 
   private messageSubject = new Subject<IUserDetial>();
-  private currentConversationId=new BehaviorSubject<number |null>(null)
+  private currentConversationId = new BehaviorSubject<number | null>(null)
 
   getMessage(): Observable<IUserDetial> {
     return this.messageSubject.asObservable();
@@ -21,11 +21,11 @@ export class currentUserDetialsService {
     this.messageSubject.next(User);
   }
 
-  setCurrentConversation(id:number){
+  setCurrentConversation(id: number) {
     this.currentConversationId.next(id);
   }
 
-  getCurrentConversation(){
+  getCurrentConversation() {
     return this.currentConversationId.asObservable();
   }
 }

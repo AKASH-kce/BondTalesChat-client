@@ -19,37 +19,41 @@ export class UsersListSideBarComponent implements OnInit {
 
   ProfileImageURl: string = "/images/profile.jpeg"
   users: IUserMessage[] = [];
-  constructor(private chatService: ChatService,private CurrentUserDetialService:currentUserDetialsService) {
+  loginUserId: number | undefined;
+
+  constructor(private chatService: ChatService, private CurrentUserDetialService: currentUserDetialsService, private userservice: UserService) {
 
   }
   async ngOnInit(): Promise<void> {
-    const userList = await this.chatService.getAllUserList();
-    console.log("Users from SignalR:", userList);
+    this.userservice.currentUserSubject.subscribe(User => {
+      this.loginUserId = Number(User?.userId);
+    }
+    )
 
-    this.users = userList.map(u => ({
-      userId: u.userId,
-      name: u.username,
-      ProfileImageURl: u.profilePicture ?? this.ProfileImageURl,
-      lastMessageTime: "time",
-      lastMessage: "last message"
-    }));
+    const userList = await this.chatService.getAllUserList();
+
+    this.users = userList
+      .filter(u => u.userId !== this.loginUserId)
+      .map(u => ({
+        userId: u.userId,
+        name: u.username,
+        ProfileImageURl: u.profilePicture ?? this.ProfileImageURl,
+        lastMessageTime: "time",
+        lastMessage: "last message"
+      }));
   }
 
-  userClicked(user:IUserMessage,event:MouseEvent){
-    console.log("message click",user);
-    console.log("message event",event);
-    const curretUser:IUserDetial={user,event};
+  userClicked(user: IUserMessage, event: MouseEvent) {
+    const curretUser: IUserDetial = { user, event };
     this.CurrentUserDetialService.sendUserDetials(curretUser)
 
     this.chatService.getOrCreateConversation(user.userId).subscribe({
-      next:async (conversationId:number)=>{
+      next: async (conversationId: number) => {
         this.CurrentUserDetialService.setCurrentConversation(conversationId);
-        console.log("active conversationId",conversationId);
-        const chats=await this.chatService.GetMessagesByConversation();
-        console.log("messages"+chats);
+        const chats = await this.chatService.GetMessagesByConversation();
       },
-      error:(err)=>console.error("error creating conversation:",err)
+      error: (err) => console.error("error creating conversation:", err)
     })
-    
+
   }
 }

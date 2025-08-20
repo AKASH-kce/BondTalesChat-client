@@ -17,7 +17,10 @@ export class MessageInputTypeBoxComponent implements OnInit {
   messageText: string = "";
   userSubscription: any;
   userId: number | unknown;
+  loginUserId: number = 0;
+  username: any;
   constructor(private chatService: ChatService, private userService: UserService, private currentUserDetialService: currentUserDetialsService) { }
+
   ngOnInit(): void {
     this.chatService.startConnection();
     this.currentUserDetialService.getMessage().subscribe({
@@ -28,19 +31,23 @@ export class MessageInputTypeBoxComponent implements OnInit {
   }
 
   send() {
-  if (this.messageText.trim() !== '') {
-    const senderId = Number(this.userId);
-
-    if (senderId > 0) {
-      this.chatService.getOrCreateConversation(senderId).subscribe({
-        next: (conversationId: number) => {
-          this.chatService.sendMessage(conversationId, senderId, this.messageText);
-          this.messageText = '';
-        },
-        error: err => console.error('Error creating conversation', err)
-      });
+    if (this.messageText.trim() !== '') {
+      const senderId = Number(this.userId);
+      this.userService.currentUserSubject.subscribe(
+        user => {
+          this.loginUserId = Number(user?.userId);
+        }
+      )
+      if (senderId > 0) {
+        this.chatService.getOrCreateConversation(senderId).subscribe({
+          next: (conversationId: number) => {
+            this.chatService.sendMessage(conversationId, this.loginUserId, this.messageText);
+            this.messageText = '';
+          },
+          error: err => console.error('Error creating conversation', err)
+        });
+      }
     }
   }
-}
 
 }

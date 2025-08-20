@@ -1,17 +1,15 @@
 <div class="chat-window">
   <div class="chat-messages" #chatMessages>
-
-    <!-- Display messages -->
-    <div *ngFor="let msg of messages" class="message-row" [ngClass]="msg.sender === 'user' ? 'user' : 'bot'">
+    <div *ngFor="let msg of messages" class="message-row"
+      [ngClass]="msg.senderId === loginUserId ? 'loginUser' : 'Chatter'">
       <img class="avatar" [src]="ProfileImageURl" alt="{{ msg.sender }} avatar" />
-
-      <div class="message" [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'">
-        {{ msg.messageText || (msg.sender === 'user' ? 'User message' : 'Bot message') }}<br>
+      <div class="message" [ngClass]="msg.senderId === loginUserId ? 'user-message' : 'bot-message'">
+        {{ msg.messageText }}
+        <br>
         <small class="time">{{ msg.sentAt | date:'shortTime' }}</small>
       </div>
     </div>
 
-    <!-- Typing indicator -->
     <div class="message-row bot" *ngIf="isTyping">
       <img class="avatar" [src]="ProfileImageURl" alt="bot avatar" />
       <div class="message bot-message typing-indicator">
@@ -20,6 +18,5 @@
         <span></span>
       </div>
     </div>
-
   </div>
 </div>

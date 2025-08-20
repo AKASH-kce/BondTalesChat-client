@@ -79,7 +79,7 @@ export class ChatService {
 
     public getOrCreateConversation(otherUserId: number | undefined): Observable<number> {
         return new Observable<number>(observer => {
-            this.userService.currentUserSubject.subscribe((user:User) => {
+            this.userService.currentUserSubject.subscribe((user: User) => {
                 let currentUserId = Number(user?.userId);
                 if (!currentUserId) {
                     observer.error("no looged in user found");
@@ -97,51 +97,51 @@ export class ChatService {
     }
 
     async GetMessagesByConversation(): Promise<any[]> {
-  await this.waitUntilConnected();
+        await this.waitUntilConnected();
 
-  // Try to get currently selected conversation
-  let conversationId = this.currentUserDetialService["currentConversationId"].getValue();
+        // Try to get currently selected conversation
+        let conversationId = this.currentUserDetialService["currentConversationId"].getValue();
 
-  if (!conversationId) {
-    try {
-      // 1️⃣ Get top friend id from server
-      const topFriendId = await this.hubConnection.invoke<number>(
-        "getFrndTop1Id",
-        Number(this.userService.currentUserSubject.getValue()?.userId)
-      );
-      console.log(Number(this.userService.currentUserSubject.getValue()?.userId));
+        if (!conversationId) {
+            try {
+                // 1️⃣ Get top friend id from server
+                const topFriendId = await this.hubConnection.invoke<number>(
+                    "getFrndTop1Id",
+                    Number(this.userService.currentUserSubject.getValue()?.userId)
+                );
+                console.log(Number(this.userService.currentUserSubject.getValue()?.userId));
 
-      if (!topFriendId) {
-        console.log("No friends found for this user");
-        return [];
-      }
+                if (!topFriendId) {
+                    console.log("No friends found for this user");
+                    return [];
+                }
 
-      // 2️⃣ Get or create conversation with that friend
-      conversationId = await this.hubConnection.invoke<number>(
-        "GetOrCreateConversation",
-        Number(this.userService.currentUserSubject.getValue()?.userId),
-        topFriendId
-      );
-       console.log(conversationId);
-      // 3️⃣ Save it to currentUserDetialService so UI knows
-      this.currentUserDetialService.setCurrentConversation(conversationId);
-    } catch (err) {
-      console.error("Error getting top friend conversation:", err);
-      return [];
+                // 2️⃣ Get or create conversation with that friend
+                conversationId = await this.hubConnection.invoke<number>(
+                    "GetOrCreateConversation",
+                    Number(this.userService.currentUserSubject.getValue()?.userId),
+                    topFriendId
+                );
+                console.log(conversationId);
+                // 3️⃣ Save it to currentUserDetialService so UI knows
+                this.currentUserDetialService.setCurrentConversation(conversationId);
+            } catch (err) {
+                console.error("Error getting top friend conversation:", err);
+                return [];
+            }
+        }
+
+        // 4️⃣ Finally fetch messages
+        try {
+            return await this.hubConnection.invoke<any[]>(
+                "GetMessagesByConversation",
+                conversationId
+            );
+        } catch (err) {
+            console.error("Error fetching messages by conversation", err);
+            return [];
+        }
     }
-  }
-
-  // 4️⃣ Finally fetch messages
-  try {
-    return await this.hubConnection.invoke<any[]>(
-      "GetMessagesByConversation",
-      conversationId
-    );
-  } catch (err) {
-    console.error("Error fetching messages by conversation", err);
-    return [];
-  }
-}
 
 
 }
