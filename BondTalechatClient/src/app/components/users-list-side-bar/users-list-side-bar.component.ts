@@ -38,7 +38,6 @@ export class UsersListSideBarComponent implements OnInit {
   userClicked(user:IUserMessage,event:MouseEvent){
     console.log("message click",user);
     console.log("message event",event);
-    // this.userSelected.next({user,event});
     const curretUser:IUserDetial={user,event};
     this.CurrentUserDetialService.sendUserDetials(curretUser)
 

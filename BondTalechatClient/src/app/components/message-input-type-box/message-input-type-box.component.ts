@@ -20,10 +20,6 @@ export class MessageInputTypeBoxComponent implements OnInit {
   constructor(private chatService: ChatService, private userService: UserService, private currentUserDetialService: currentUserDetialsService) { }
   ngOnInit(): void {
     this.chatService.startConnection();
-    // this.userSubscription = this.userService.currentUserSubject.subscribe(
-    //   user => {
-    //     this.userId = user?.userId ?? 0;
-    //   });
     this.currentUserDetialService.getMessage().subscribe({
       next: (data: IUserDetial) => {
         this.userId = data.user.userId ?? "unknown";
