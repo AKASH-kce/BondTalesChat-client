@@ -37,11 +37,11 @@ export class PreviousChatListAreaComponent implements OnInit, OnDestroy {
         this.currentUserChatId = data.user.userId ?? "unknown";
         this.ProfileImageURl = data.user.ProfileImageURl ?? "/images/profile.jpeg";
         this.chatService.getOrCreateConversation(data.user.userId).subscribe(conversationId => {
-  this.currentUserDetialService.setCurrentConversation(conversationId);
-});
+          this.currentUserDetialService.setCurrentConversation(conversationId);
+        });
 
-        const message=await this.chatService.GetMessagesByConversation();
-        this.messages=message;
+        const message = await this.chatService.GetMessagesByConversation();
+        this.messages = message;
         this.messages = await this.chatService.getAllMessageOfCurrentLoginUser(this.currentUserChatId);
         this.messages = this.messages.filter(msg => msg.senderId === this.currentUserChatId);
       }
