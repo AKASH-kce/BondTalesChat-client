@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-export interface IUserMessage {
-  ProfileImageURl: string;
-  name: string;
-  lastMessageTime: string;
-  lastMessage: string;
-}
+import { UserService } from '../../Services/user.service';
+import { ChatService } from '../../Services/chat.serivce';
+import { User } from '../../Models/user.model';
+import { Observable, Subject } from 'rxjs';
+import { currentUserDetialsService } from '../../Services/current-user-detials-service';
+import { IUserDetial, IUserMessage } from '../../Models/user.detials.model';
+
 @Component({
   selector: 'app-users-list-side-bar',
   standalone: true,
@@ -17,22 +18,28 @@ export class UsersListSideBarComponent implements OnInit {
 
   ProfileImageURl: string = "/images/profile.jpeg"
   users: IUserMessage[] = [];
+  constructor(private chatService: ChatService,private CurrentUserDetialService:currentUserDetialsService) {
 
-  ngOnInit(): void {
-    this.users.push(
-      {
-        name: "akash",
-        ProfileImageURl: this.ProfileImageURl,
-        lastMessageTime: "time",
-        lastMessage: "last message"
-      },
-      {
-        name: "koushiik",
-        ProfileImageURl: this.ProfileImageURl,
-        lastMessageTime: "time",
-        lastMessage: "last message"
-      }
-    )
+  }
+  async ngOnInit(): Promise<void> {
+    const userList = await this.chatService.getAllUserList();
+    console.log("Users from SignalR:", userList);
+
+    this.users = userList.map(u => ({
+       userId: u.userId,
+      name: u.username,
+      ProfileImageURl: u.profilePicture ?? this.ProfileImageURl,
+      lastMessageTime: "time",
+      lastMessage: "last message"
+    }));
   }
 
+  userClicked(user:IUserMessage,event:MouseEvent){
+    console.log("message click",user);
+    console.log("message event",event);
+    // this.userSelected.next({user,event});
+    const curretUser:IUserDetial={user,event};
+    this.CurrentUserDetialService.sendUserDetials({user,event})
+    
+  }
 }

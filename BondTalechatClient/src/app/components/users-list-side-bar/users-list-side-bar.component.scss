@@ -9,6 +9,7 @@ p{
     display: flex;
     flex-direction: row;
     width: 100%;
+    cursor:pointer;
     border-bottom: 2px solid var(--separate-entities-color);
 }
 .user-content{
