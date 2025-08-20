@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, BehaviorSubject } from 'rxjs';
 import { IUserDetial } from '../Models/user.detials.model';
 
 @Injectable({
@@ -10,6 +10,8 @@ export class currentUserDetialsService {
   constructor() { }
 
   private messageSubject = new Subject<IUserDetial>();
+  private currentConversationId=new BehaviorSubject<number |null>(null)
+
   getMessage(): Observable<IUserDetial> {
     return this.messageSubject.asObservable();
   }
@@ -17,5 +19,13 @@ export class currentUserDetialsService {
 
   sendUserDetials(User: IUserDetial) {
     this.messageSubject.next(User);
+  }
+
+  setCurrentConversation(id:number){
+    this.currentConversationId.next(id);
+  }
+
+  getCurrentConversation(){
+    return this.currentConversationId.asObservable();
   }
 }

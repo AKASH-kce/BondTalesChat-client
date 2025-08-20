@@ -36,25 +36,18 @@ export class PreviousChatListAreaComponent implements OnInit, OnDestroy {
       next: async (data: IUserDetial) => {
         this.currentUserChatId = data.user.userId ?? "unknown";
         this.ProfileImageURl = data.user.ProfileImageURl ?? "/images/profile.jpeg";
+        this.chatService.getOrCreateConversation(data.user.userId).subscribe(conversationId => {
+  this.currentUserDetialService.setCurrentConversation(conversationId);
+});
+
+        const message=await this.chatService.GetMessagesByConversation();
+        this.messages=message;
         this.messages = await this.chatService.getAllMessageOfCurrentLoginUser(this.currentUserChatId);
         this.messages = this.messages.filter(msg => msg.senderId === this.currentUserChatId);
       }
     })
-    // Subscribe to incoming messages
-    this.messageSub = this.chatService.message$.subscribe((msg: any) => {
-      if (!msg) return;
-
-      // Handle both single message or array of messages
-      const messagesArray = Array.isArray(msg) ? msg : [msg];
-
-      for (const m of messagesArray) {
-        if (!this.messages.some(existing => existing.messageId === m.messageId)) {
-          if (m.senderId === this.currentUserChatId) {
-            this.messages.push(m);
-          }
-        }
-      }
-    });
+    const msgs = await this.chatService.GetMessagesByConversation();
+    console.log("Conversation messages:", msgs);
   }
 
   ngOnDestroy(): void {

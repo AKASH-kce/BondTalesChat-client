@@ -30,14 +30,21 @@ export class MessageInputTypeBoxComponent implements OnInit {
       }
     })
   }
-  send() {
-    if (this.messageText.trim() !== '') {
-      const senderId = Number(this.userId);
-      if (this.messageText.trim() !== '' && senderId > 0) {
-        this.chatService.sendMessage(1, senderId, this.messageText);
-      }
-      this.messageText = ''
-    }
 
+  send() {
+  if (this.messageText.trim() !== '') {
+    const senderId = Number(this.userId);
+
+    if (senderId > 0) {
+      this.chatService.getOrCreateConversation(senderId).subscribe({
+        next: (conversationId: number) => {
+          this.chatService.sendMessage(conversationId, senderId, this.messageText);
+          this.messageText = '';
+        },
+        error: err => console.error('Error creating conversation', err)
+      });
+    }
   }
+}
+
 }
