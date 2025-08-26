@@ -1,0 +1,24 @@
+<div class="main-container">
+  <div class="header">
+    <h2>All Users</h2>
+    <i class="fa-solid fa-xmark" (click)="closeDialog()"></i>
+  </div>
+
+  <div class="all-users" *ngFor="let user of users" (click)="userClicked(user, $event)">
+    <div class="user">
+      <img [src]="user.ProfileImageURl" alt="Profile" />
+    </div>
+    <div class="user-content">
+      <div class="name-time">
+        <p class="user-name">{{ user.name }}</p>
+        <p class="user-time">{{ user.lastMessageTime }}</p>
+      </div>
+      <!-- <div class="last-message">
+        <p class="user-message">{{ user.lastMessage }}</p>
+      </div> -->
+    </div>
+    <div class="add-to-friend-list">
+      <i class="fa-solid fa-user-plus" (click)="addToFriendList(user)"></i>
+    </div>
+  </div>
+</div>

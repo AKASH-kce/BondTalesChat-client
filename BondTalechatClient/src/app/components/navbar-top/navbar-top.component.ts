@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { User } from '../../Models/user.model';
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { AddUserPopupComponentTsComponent } from '../../popupComponents/add-user-popup.component.ts/add-user-popup.component.ts.component';
+import { AddUserPopupComponent } from '../../popupComponents/add-user-popup.component.ts/add-user-popup.component';
 
 @Component({
   selector: 'app-navbar-top',
@@ -29,13 +29,9 @@ export class NavbarTopComponent implements OnInit {
       }
     )
   }
-  
+
    onAddUser() {
-    this.dialog.open(AddUserPopupComponentTsComponent, {
-      width: '400px',
-      height: '300px',
-      data: {} 
-    });
+    this.dialog.open(AddUserPopupComponent);
   }
 
   navigateToUserProfile(): void {
