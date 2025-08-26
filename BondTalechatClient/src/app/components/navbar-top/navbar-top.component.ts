@@ -3,6 +3,8 @@ import { UserService } from '../../Services/user.service';
 import { Router } from '@angular/router';
 import { User } from '../../Models/user.model';
 import { Subscription } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { AddUserPopupComponentTsComponent } from '../../popupComponents/add-user-popup.component.ts/add-user-popup.component.ts.component';
 
 @Component({
   selector: 'app-navbar-top',
@@ -14,7 +16,7 @@ import { Subscription } from 'rxjs';
 export class NavbarTopComponent implements OnInit {
   username?: string | null;
   private userSubscription!: Subscription;
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(private userService: UserService, private router: Router,private dialog: MatDialog) {}
 
   ngOnInit(): void {
     // var users = this.userService.getUser();
@@ -26,6 +28,14 @@ export class NavbarTopComponent implements OnInit {
         console.log("User updated:", user);
       }
     )
+  }
+  
+   onAddUser() {
+    this.dialog.open(AddUserPopupComponentTsComponent, {
+      width: '400px',
+      height: '300px',
+      data: {} 
+    });
   }
 
   navigateToUserProfile(): void {
