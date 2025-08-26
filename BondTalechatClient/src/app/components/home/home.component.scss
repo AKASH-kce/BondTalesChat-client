@@ -1,34 +1,39 @@
-.container{
-    width: 100%;
-    height: 100vh;
-    display: grid;
-    grid-template-columns: repeat(11, 1fr); 
-    grid-template-rows: 1fr 11fr;
-    grid-template-areas:
-    "lsb nb nb nb nb nb nb nb nb nb nb"
-    "lsb user user chat chat chat chat chat chat chat chat";
+.container {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: auto 250px 5px 1fr; /* lsb | user | resizer | chat */
+  grid-template-rows: 60px 1fr; /* navbar row + content row */
+  grid-template-areas:
+    "lsb nb nb nb"
+    "lsb user resizer chat";
 }
 
-.box1{
-  // background-color: var(--primary-soft);
-  background-color: var(--chat-area-color);
+.box1 {
   grid-area: lsb;
+  background-color: var(--chat-area-color);
   border-right: 2px solid rgba(15, 52, 96, 0.5);
-
 }
 
-.box2{
+.box2 {
   grid-area: nb;
 }
 
-.box3{
+.box3 {
   grid-area: user;
   background-color: var(--user-list-area-color);
   border-right: 2px solid var(--separate-entities-color);
   overflow: auto;
 }
 
-.box4{
+.box4 {
   grid-area: chat;
   overflow: auto;
+}
+
+.resizer {
+  grid-area: resizer;
+  cursor: col-resize;
+  background-color: var(--separate-entities-color);
+  width: 5px;
 }
