@@ -50,6 +50,16 @@ export class AddUserPopupComponent {
 
 
   userClicked(user: IUserMessage, event: MouseEvent) {
+    this.CurrentUserDetialService.sendUserDetials({
+      user: {
+        userId: user.userId,
+        name: user.name,
+        ProfileImageURl: user.ProfileImageURl || this.ProfileImageURl,
+        lastMessageTime: user.lastMessageTime,
+        lastMessage: user.lastMessage ?? ""
+      },
+      event
+    });
     this.chatService.getOrCreateConversation(user.userId).subscribe({
       next: async (conversationId: number) => {
         this.CurrentUserDetialService.setCurrentConversation(conversationId);
@@ -64,6 +74,7 @@ export class AddUserPopupComponent {
   }
 
   closeDialog() {
+    this.CurrentUserDetialService.triggerSidebarRefresh();
     this.dialogRef.close();
   }
 

@@ -30,6 +30,9 @@ export class UsersListSideBarComponent implements OnInit {
     this.userService.currentUserSubject.subscribe(user => {
       this.loginUserId = Number(user?.userId);
     });
+    this.currentUserDetialService.refreshSidebar$.subscribe(() => {
+      this.loadConversations();
+    });
 
     await this.loadConversations();
   }

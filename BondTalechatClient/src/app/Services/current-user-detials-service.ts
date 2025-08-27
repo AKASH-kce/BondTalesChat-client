@@ -11,6 +11,12 @@ export class currentUserDetialsService {
 
   private messageSubject = new Subject<IUserDetial>();
   private currentConversationId = new BehaviorSubject<number | null>(null)
+  private refreshSidebar = new Subject<void>();
+  refreshSidebar$ = this.refreshSidebar.asObservable();
+
+  triggerSidebarRefresh() {
+    this.refreshSidebar.next();
+  }
 
 
   getCurrentConversationId(): number | null {
