@@ -1,16 +1,37 @@
 <div class="main-container">
-    <div class="all-users" *ngFor="let user of users" (click)="userClicked(user,$event)">
-        <div class="user">
-            <div class="user-profile"><img [src]="user.ProfileImageURl" alt=""></div>
+  <div class="sidebar-header">
+    <h2>Chats</h2>
+    <button class="new-chat-btn" (click)="openAddUserDialog()">
+      <i class="fa-solid fa-user-plus"></i>
+    </button>
+  </div>
+
+  <div class="conversations-list">
+    <div *ngFor="let conv of conversations" class="conversation-item" (click)="conversationClicked(conv, $event)"
+      [class.active]="currentUserDetialService.getCurrentConversationId() === conv.conversationId">
+
+      <div class="avatar">
+        <img [src]="conv.otherUserProfilePicture || defaultProfileImage" alt="Profile" />
+        <span *ngIf="conv.unreadCount > 0" class="unread-badge">{{conv.unreadCount}}</span>
+      </div>
+
+      <div class="conversation-content">
+        <div class="conversation-header">
+          <h3 class="conversation-name">{{conv.isGroup ? conv.title : conv.otherUserName}}</h3>
+          <span class="time">{{conv.lastMessageTime}}</span>
         </div>
-        <div class="user-content">
-            <div class="name-time">
-                <p class="user-name">{{user.name}}</p>
-                <p class="user-time">{{user.lastMessageTime}}</p>
-            </div>
-            <div class="last-message">
-                <p class="user-message">{{user.lastMessage}}</p>
-            </div>
+
+        <div class="last-message">
+          <p *ngIf="conv.lastMessageSenderId && conv.lastMessageSenderId === loginUserId" class="message-prefix">You:
+          </p>
+          <p class="message-text">{{conv.lastMessage || 'No messages yet'}}</p>
         </div>
+      </div>
     </div>
+
+    <div *ngIf="conversations.length === 0" class="empty-state">
+      <p>No conversations yet</p>
+      <button (click)="openAddUserDialog()">Start a conversation</button>
+    </div>
+  </div>
 </div>

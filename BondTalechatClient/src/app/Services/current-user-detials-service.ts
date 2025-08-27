@@ -12,6 +12,10 @@ export class currentUserDetialsService {
   private messageSubject = new Subject<IUserDetial>();
   private currentConversationId = new BehaviorSubject<number | null>(null)
 
+
+  getCurrentConversationId(): number | null {
+    return this.currentConversationId.value;
+  }
   getMessage(): Observable<IUserDetial> {
     return this.messageSubject.asObservable();
   }

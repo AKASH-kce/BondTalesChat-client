@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../Models/user.model';
 import { UserService } from './user.service';
 import { currentUserDetialsService } from './current-user-detials-service';
+import { IConversation } from '../Models/user.detials.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -143,5 +144,39 @@ export class ChatService {
         }
     }
 
+   
+    public async getUserConversations(): Promise<IConversation[]> {
+        await this.waitUntilConnected();
+
+        try {
+            const userId = Number(this.userService.currentUserSubject.getValue()?.userId);
+            const conversations = await this.hubConnection.invoke<IConversation[]>('GetUserConversations', userId);
+
+            return conversations.map(conv => ({
+                ...conv,
+                lastMessageTime: this.formatMessageTime(conv.lastMessageTime)
+            }));
+        } catch (err) {
+            console.error('Error fetching user conversations:', err);
+            return [];
+        }
+    }
+
+    private formatMessageTime(dateString: string): string {
+        if (!dateString) return '';
+
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMs = now.getTime() - date.getTime();
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+        if (diffInDays < 1) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (diffInDays < 7) {
+            return date.toLocaleDateString([], { weekday: 'short' });
+        } else {
+            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+    }
 
 }

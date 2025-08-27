@@ -6,7 +6,7 @@
   // background-color: var(--primary-soft);
   background-color: var(--chat-area-color);
   gap: 20px;
-  padding-right: 20px ;
+  padding-right: 20px;
 }
 
 .general-options {
@@ -31,11 +31,11 @@
   background-color: white;
   border-radius: 10px;
   overflow: hidden;
-  padding: 0px 10px;  
+  padding: 0px 10px;
 }
 
 img {
-  width: 20px; 
+  width: 20px;
   height: 20px;
   cursor: pointer;
 }
@@ -49,18 +49,23 @@ input {
   color: black;
 }
 
-.inner-nav-container{
-    width: 80%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
+.inner-nav-container {
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
-i{
+i {
   cursor: pointer;
 }
-app-add-user-popup{
+
+app-add-user-popup {
   height: 100%;
   width: 100%;
+}
+
+span {
+  color: var(--accent-text-color) !important;
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +9,7 @@ import { IUserDetial, IUserMessage } from '../../Models/user.detials.model';
 import { UserService } from '../../Services/user.service';
 import { currentUserDetialsService } from '../../Services/current-user-detials-service';
 import { CommonModule } from '@angular/common';
+import { UsersListSideBarComponent } from '../../components/users-list-side-bar/users-list-side-bar.component';
 
 @Component({
   selector: 'app-add-user-popup',
@@ -25,10 +26,11 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./add-user-popup.component.scss']
 })
 export class AddUserPopupComponent {
-  constructor(private chatService: ChatService,private dialogRef:MatDialogRef<AddUserPopupComponent>,private userservice: UserService, private CurrentUserDetialService: currentUserDetialsService) {}
-   users: IUserMessage[] = [];
-   loginUserId: number | undefined;
-    ProfileImageURl: string = "/images/profile.jpeg"
+  constructor(private chatService: ChatService, private dialogRef: MatDialogRef<AddUserPopupComponent>, private userservice: UserService, private CurrentUserDetialService: currentUserDetialsService) { }
+  users: IUserMessage[] = [];
+  @ViewChild(UsersListSideBarComponent) sidebar!: UsersListSideBarComponent;
+  loginUserId: number | undefined;
+  ProfileImageURl: string = "/images/profile.jpeg"
   async ngOnInit() {
     this.userservice.currentUserSubject.subscribe(User => {
       this.loginUserId = Number(User?.userId);
@@ -44,28 +46,28 @@ export class AddUserPopupComponent {
         lastMessageTime: "time",
         lastMessage: "last message"
       }));
-    }
+  }
 
-    userClicked(user: IUserMessage, event: MouseEvent) {
-        const curretUser: IUserDetial = { user, event };
-        this.CurrentUserDetialService.sendUserDetials(curretUser)
-    
-        this.chatService.getOrCreateConversation(user.userId).subscribe({
-          next: async (conversationId: number) => {
-            this.CurrentUserDetialService.setCurrentConversation(conversationId);
-            const chats = await this.chatService.GetMessagesByConversation();
-          },
-          error: (err) => console.error("error creating conversation:", err)
-        })
+
+  userClicked(user: IUserMessage, event: MouseEvent) {
+    this.chatService.getOrCreateConversation(user.userId).subscribe({
+      next: async (conversationId: number) => {
+        this.CurrentUserDetialService.setCurrentConversation(conversationId);
+        // Refresh the conversation list in the sidebar
+        if (this.sidebar) {
+          await this.sidebar.loadConversations();
+        }
         this.closeDialog();
-    
-      }
+      },
+      error: (err) => console.error("Error creating conversation:", err)
+    });
+  }
 
-      closeDialog(){
-        this.dialogRef.close();
-      }
+  closeDialog() {
+    this.dialogRef.close();
+  }
 
-      addToFriendList(user: any){
-        console.log("Add to friend list",user);
-      }
+  addToFriendList(user: any) {
+    console.log("Add to friend list", user);
+  }
 }

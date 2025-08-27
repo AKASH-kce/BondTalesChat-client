@@ -25,12 +25,19 @@
   --message-input-color: #8B6F4E;
 
   /*text colors*/
-  --primary-text-color: #EAEAEA;  /* Soft white for main readability */
-  --secondary-text-color: #C0C6CC; /* Muted silver-gray for less important text */
-  --accent-text-color: #D4AF37;   /* Gold for highlights, usernames, or icons */
+  --primary-text-color: #EAEAEA;
+  /* Soft white for main readability */
+  --secondary-text-color: #C0C6CC;
+  /* Muted silver-gray for less important text */
+  --accent-text-color: #D4AF37;
+  /* Gold for highlights, usernames, or icons */
   --active-tab-border: #FFB347;
-  --profile-name-color: #FFD700; 
-  --separate-entities-color: #8FA6B2; 
+  --profile-name-color: #FFD700;
+  --separate-entities-color: #8FA6B2;
+  --active-chat-bg: #3B2F1C;
+  /* dark gold-brown with subtle glow */
+  --active-chat-hover: #4D3A21;
+  /* slightly lighter for hover effect */
 }
 
 * {
@@ -41,4 +48,35 @@
   font-weight: 300;
   font-style: normal;
   color: var(--text-white);
+}
+
+/* 🌟 Gold Themed Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-deep);
+  /* dark background to contrast gold */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent-text-color), var(--profile-name-color));
+  border-radius: 10px;
+  border: 2px solid var(--primary-deep);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--active-tab-border), var(--accent-text-color));
+  transform: scale(1.1);
+  /* subtle enlarge effect */
+}
+
+/* Firefox Support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-text-color) var(--primary-deep);
 }
