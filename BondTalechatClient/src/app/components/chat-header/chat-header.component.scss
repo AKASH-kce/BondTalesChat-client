@@ -24,6 +24,13 @@ p {
     display: flex;
     flex-direction: row;
     gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.right-sub-container.on-top {
+    z-index: 2000 !important;
+    position: relative;
 }
 
 .call-options {
@@ -31,6 +38,15 @@ p {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    border: 2px solid var(--separate-entities-color);
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.call-icon {
+    border-right: 2px solid var(--separate-entities-color);
+    padding: 5px;
+    padding-right: 10px;
 }
 
 .right-option {
@@ -59,7 +75,7 @@ img {
 }
 
 .user-name {
-    color: var(--accent-text-color);
+    color: var(--profile-name-color);
     padding: 2px;
 }
 
@@ -67,12 +83,6 @@ img {
     color: var(--primary-text-color);
     border-bottom: 2px solid var(--active-tab-border);
     padding: 2px;
-}
-
-.call-options {
-    border: 2px solid var(--separate-entities-color);
-    padding: 2px;
-    border-radius: 5px;
 }
 
 .view-participant {
@@ -88,8 +98,11 @@ img {
     border-radius: 5px;
 }
 
-.call-icon {
-    border-right: 2px solid var(--separate-entities-color);
-    padding: 5px;
-    padding-right: 10px;
+.drop-down i {
+    display: inline-block;
+    transition: transform 0.6s ease;
+}
+
+.drop-down i.open {
+    transform: rotate(180deg);
 }

@@ -4,7 +4,7 @@ import { UserService } from '../../Services/user.service';
 import { ChatService } from '../../Services/chat.serivce';
 import { currentUserDetialsService } from '../../Services/current-user-detials-service';
 import { IConversation } from '../../Models/user.detials.model';
-import { AddUserPopupComponent } from '../../popupComponents/add-user-popup.component.ts/add-user-popup.component';
+import { AddUserPopupComponent } from '../../popupComponents/add-user-popup.component/add-user-popup.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({

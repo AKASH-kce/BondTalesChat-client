@@ -1,26 +1,28 @@
 <div class="container">
-    <div class="left-sub-container">
-        <div class="user-img"><img [src]="ProfileImageURl"  alt=""></div>
-        <div class="user-name">{{currentChatUserName}}</div>
-        <div class="chats-active">Chat</div>
-        <div class="shared-media">Shared</div>
-        <div class="add-tab"><i class="fa-solid fa-plus"></i></div>
-    </div>
-    <div class="right-sub-container">
+  <div class="left-sub-container">
+    <div class="user-img"><img [src]="ProfileImageURl" alt=""></div>
+    <div class="user-name">{{currentChatUserName}}</div>
+    <div class="chats-active">Chat</div>
+    <div class="shared-media">Shared</div>
+    <div class="add-tab"><i class="fa-solid fa-plus"></i></div>
+  </div>
 
-        <div class="call-options">
-            <div class="call-icon"><i class="fa-solid fa-phone-volume"></i></div>
-            <div class="drop-down"><i class="fa-solid fa-chevron-down"></i></div>
-        </div>
+  <div class="right-sub-container" [ngClass]="{'on-top': callDailogpopupOpen}">
 
-        <div class="view-participant"><i class="fa-solid fa-users-viewfinder"></i></div>
-
-        <div class="right-option">
-            <div class="search-icon"><i class="fa-brands fa-searchengin"></i></div>
-            <div class="chat-detials"><i class="fa-regular fa-square-caret-left"></i></div>
-            <div class="more-chat-option"><i class="fa-solid fa-bars"></i></div>
-        </div>
-
+    <div class="call-options">
+      <div class="call-icon"><i class="fa-solid fa-phone-volume"></i></div>
+      <div class="drop-down" (click)="openCallPopup($event)">
+        <i class="fa-solid" [ngClass]="callDailogpopupOpen ? 'fa-xmark open' : 'fa-angle-down'"></i>
+      </div>
     </div>
 
+    <div class="view-participant"><i class="fa-solid fa-users-viewfinder"></i></div>
+
+    <div class="right-option">
+      <div class="search-icon"><i class="fa-brands fa-searchengin"></i></div>
+      <div class="chat-detials"><i class="fa-regular fa-square-caret-left"></i></div>
+      <div class="more-chat-option"><i class="fa-solid fa-bars"></i></div>
+    </div>
+
+  </div>
 </div>
