@@ -5,10 +5,10 @@
 <div class="call-popup-container">
   <h3>{{data.userName}}</h3>
   <div class="call-options">
-    <button class="audio-call-btn">
+    <button class="audio-call-btn" (click)="closeDialog('audioCall')">
       <i class="fa-solid fa-phone-volume"></i> Audio Call
     </button>
-    <button class="video-call-btn">
+    <button class="video-call-btn" (click)="closeDialog('videoCall')">
       <i class="fa-solid fa-video"></i> Video Call
     </button>
   </div>

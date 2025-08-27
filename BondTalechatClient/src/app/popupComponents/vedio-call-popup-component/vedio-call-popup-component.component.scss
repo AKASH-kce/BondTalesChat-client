@@ -1,0 +1,129 @@
+.video-call-container {
+  width: 480px;
+  background: var(--primary-rich);
+  border-radius: 10px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.7);
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
+
+  &.minimized {
+    width: 200px;
+    height: 50px;
+  }
+
+  .call-header {
+    background: var(--primary-soft);
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+
+    .call-title {
+      font-weight: 500;
+      color: var(--accent-text-color);
+    }
+
+    .call-actions {
+      display: flex;
+      gap: 8px;
+
+      button {
+        background: transparent;
+        border: none;
+        color: var(--text-light-gray);
+        font-size: 14px;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--accent-text-color);
+        }
+      }
+    }
+  }
+
+  .call-body {
+    padding: 12px;
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+
+      .video-stream {
+        background: #222;
+        height: 180px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--secondary-text-color);
+        font-size: 14px;
+        position: relative;
+        overflow: hidden;
+
+        &.local {
+          border: 2px solid var(--accent-text-color);
+        }
+      }
+    }
+
+    .call-controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+
+      button {
+        padding: 6px 12px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        &.end-call-btn {
+          background: var(--error-red);
+          color: white;
+
+          &:hover {
+            background: darkred;
+          }
+        }
+
+        &.mute-btn {
+          background: var(--primary-soft);
+          color: var(--text-white);
+
+          &:hover {
+            background: var(--accent-text-color);
+            color: var(--primary-dark);
+          }
+        }
+
+        &.camera-btn {
+          background: var(--primary-soft);
+          color: var(--text-white);
+
+          &:hover {
+            background: var(--accent-text-color);
+            color: var(--primary-dark);
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Apply draggable to the entire dialog panel */
+.draggable-dialog {
+  cursor: move;           /* shows grab cursor */
+  touch-action: none;     /* needed for drag */
+}
+
+/* Optional: remove default Material dialog padding */
+.draggable-dialog .mat-mdc-dialog-container {
+  padding: 0;
+}

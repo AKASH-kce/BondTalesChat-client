@@ -4,6 +4,8 @@ import { IUserDetial } from '../../Models/user.detials.model';
 import { MatDialog } from '@angular/material/dialog';
 import { CallPopupComponentComponent } from '../../popupComponents/call-popup-component/call-popup-component.component';
 import { CommonModule } from '@angular/common';
+import { AudioCallPopupComponentComponent } from '../../popupComponents/audio-call-popup-component/audio-call-popup-component.component';
+import { VedioCallPopupComponentComponent } from '../../popupComponents/vedio-call-popup-component/vedio-call-popup-component.component';
 @Component({
   selector: 'app-chat-header',
   standalone: true,
@@ -16,7 +18,8 @@ export class ChatHeaderComponent implements OnInit {
   currentChatUserName: string = "";
   ProfileImageURl: string = ""
   callDailogpopupOpen: boolean = false;
-  callDialogRef: any; 
+  callDialogRef: any;
+  useId: number | undefined;
 
   constructor(private currentUserDetialService: currentUserDetialsService, private dialogRef: MatDialog) {
 
@@ -24,6 +27,7 @@ export class ChatHeaderComponent implements OnInit {
   ngOnInit(): void {
     this.currentUserDetialService.getMessage().subscribe({
       next: (data: IUserDetial) => {
+        this.useId = data.user.userId ?? 0;
         this.currentChatUserName = data.user.name ?? "unknown";
         this.ProfileImageURl = data.user.ProfileImageURl ?? "/images/profile.jpeg";
       }
@@ -47,7 +51,35 @@ export class ChatHeaderComponent implements OnInit {
       this.callDailogpopupOpen = true;
     }, 50);
 
-    this.callDialogRef.afterClosed().subscribe(() => {
+    interface CallDialogResult {
+      action?: 'audioCall' | 'videoCall';
+    }
+
+    this.callDialogRef.afterClosed().subscribe((result: CallDialogResult | undefined) => {
+      const action = result?.action;
+      if (action) {
+        console.log('Call action:', action);
+        if (action === 'audioCall') {
+          console.log('Initiating audio call...');
+          console.log('User ID:', this.useId);
+          this.dialogRef.open(AudioCallPopupComponentComponent, {
+            data: {
+              userId: this.useId
+            },
+            panelClass: 'draggable-dialog'
+          });
+        }
+        if (action === 'videoCall') {
+          console.log('Initiating video call...');
+          console.log('User ID:', this.useId);
+          this.dialogRef.open(VedioCallPopupComponentComponent, {
+            data: {
+              userId: this.useId
+            },
+            panelClass: 'draggable-dialog'
+          });
+        }
+      }
       this.callDailogpopupOpen = false;
       this.callDialogRef = undefined;
     });

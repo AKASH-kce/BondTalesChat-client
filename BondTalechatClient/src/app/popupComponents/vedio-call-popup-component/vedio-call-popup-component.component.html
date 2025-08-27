@@ -1,0 +1,41 @@
+<div class="video-call-container" cdkDrag cdkDragRootElement=".mat-mdc-dialog-container">
+  <!-- Header -->
+  <div class="call-header" cdkDragHandle>
+    <span class="call-title"><i class="fa-solid fa-video"></i> Video Call</span>
+    <div class="call-actions">
+      <button class="min-btn" (click)="toggleMinimize()">
+        <i class="fa-solid" [ngClass]="isMinimized ? 'fa-window-maximize' : 'fa-window-minimize'"></i>
+      </button>
+      <button class="close-btn" (click)="endCall()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="call-body" *ngIf="!isMinimized">
+    <div class="video-grid">
+      <!-- Remote Video -->
+      <div class="video-stream remote">
+        <p>Remote Video User ID: {{ data.userId }}</p>
+      </div>
+
+      <!-- Local Video -->
+      <div class="video-stream local">
+        <p>Local Camera</p>
+      </div>
+    </div>
+
+    <div class="call-controls">
+      <button class="end-call-btn" (click)="endCall()">
+        <i class="fa-solid fa-phone-slash"></i> End Call
+      </button>
+      <button class="mute-btn">
+        <i class="fa-solid fa-microphone-slash"></i> Mute
+      </button>
+      <button class="camera-btn">
+        <i class="fa-solid fa-video-slash"></i> Video Off
+      </button>
+    </div>
+  </div>
+</div>

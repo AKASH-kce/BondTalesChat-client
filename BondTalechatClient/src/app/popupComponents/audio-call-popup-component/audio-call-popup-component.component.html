@@ -1,0 +1,28 @@
+<div class="call-container" cdkDrag cdkDragRootElement=".mat-mdc-dialog-container">
+  <!-- Header -->
+  <div class="call-header" cdkDragHandle>
+    <span class="call-title"><i class="fa-solid fa-phone"></i> Audio Call</span>
+    <div class="call-actions">
+      <button class="min-btn" (click)="toggleMinimize()">
+        <i class="fa-solid" [ngClass]="isMinimized ? 'fa-window-maximize' : 'fa-window-minimize'"></i>
+      </button>
+      <button class="close-btn" (click)="endCall()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="call-body" *ngIf="!isMinimized">
+    <div class="user-avatar">
+      <i class="fa-solid fa-user"></i>
+    </div>
+    <p class="user-info">Calling User ID: {{ data.userId }}</p>
+
+    <div class="call-controls">
+      <button class="end-call-btn" (click)="endCall()">
+        <i class="fa-solid fa-phone-slash"></i> End Call
+      </button>
+    </div>
+  </div>
+</div>
