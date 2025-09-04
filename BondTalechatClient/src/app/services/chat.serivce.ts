@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { User } from '../Models/user.model';
 import { UserService } from './user.service';
 import { currentUserDetialsService } from './current-user-detials-service';
@@ -11,13 +11,26 @@ import { IConversation } from '../Models/user.detials.model';
 export class ChatService {
     private hubConnection!: signalR.HubConnection;
     public message$ = new BehaviorSubject<any>(null);
+    // Call event channels
+    public incomingCall$ = new Subject<any>();
+    public callAccepted$ = new Subject<any>();
+    public callDeclined$ = new Subject<any>();
+    public callEnded$ = new Subject<any>();
+    public callOffer$ = new Subject<any>();
+    public callAnswer$ = new Subject<any>();
+    public callCandidate$ = new Subject<any>();
 
     constructor(private userService: UserService, private currentUserSetialService: currentUserDetialsService, private currentUserDetialService: currentUserDetialsService) { }
 
     public async startConnection(): Promise<void> {
         this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl(environment.signalRUrl)
+            .withUrl(environment.signalRUrl, {
+                accessTokenFactory: () => this.getToken(),
+                withCredentials: true,
+                transport: signalR.HttpTransportType.WebSockets
+            })
             .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
             .build();
 
         this.registerOnServerEvents();
@@ -25,13 +38,63 @@ export class ChatService {
         await this.hubConnection.start();
         console.log("SignalR connected");
 
+        // Optional: verify identity if backend supports WhoAmI
+        try {
+            const me = await this.hubConnection.invoke<string | null>('WhoAmI');
+            console.log('WhoAmI:', me);
+        } catch {}
+
         // Wait until actually connected
         await this.waitUntilConnected();
+    }
+
+    private getToken(): string {
+        try {
+            return localStorage.getItem('token') || '';
+        } catch {
+            return '';
+        }
     }
 
     private registerOnServerEvents() {
         this.hubConnection.on('ReceiveMessage', (msg: any) => {
             this.message$.next(msg);
+        });
+
+        // Call-related events
+        this.hubConnection.on('IncomingCall', (payload: any) => {
+            console.log('Incoming call:', payload);
+            this.incomingCall$.next(payload);
+        });
+
+        this.hubConnection.on('CallAccepted', (payload: any) => {
+            console.log('Call accepted:', payload);
+            this.callAccepted$.next(payload);
+        });
+
+        this.hubConnection.on('CallDeclined', (payload: any) => {
+            console.log('Call declined:', payload);
+            this.callDeclined$.next(payload);
+        });
+
+        this.hubConnection.on('CallEnded', (payload: any) => {
+            console.log('Call ended:', payload);
+            this.callEnded$.next(payload);
+        });
+
+        this.hubConnection.on('CallOffer', (payload: any) => {
+            console.log('Call offer:', payload);
+            this.callOffer$.next(payload);
+        });
+
+        this.hubConnection.on('CallAnswer', (payload: any) => {
+            console.log('Call answer:', payload);
+            this.callAnswer$.next(payload);
+        });
+
+        this.hubConnection.on('CallCandidate', (payload: any) => {
+            console.log('CallCandidate', payload);
+            this.callCandidate$.next(payload);
         });
     }
 
@@ -177,6 +240,55 @@ export class ChatService {
         } else {
             return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
         }
+    }
+
+    // Call-related methods
+    // Return callId assigned by server
+    public initiateCall(participantId: number, callType: 'audio' | 'video'): Promise<string> {
+        if (!this.isConnected()) return Promise.reject('SignalR not connected');
+        return this.hubConnection.invoke<string>('InitiateCall', participantId, callType);
+    }
+
+    public answerCall(callId: string, answer: RTCSessionDescriptionInit): Promise<void> {
+        if (!this.isConnected()) return Promise.reject('SignalR not connected');
+        const dto = { type: answer.type || 'answer', sdp: (answer as any).sdp };
+        return this.hubConnection.invoke('AnswerCall', callId, dto);
+    }
+
+    public declineCall(callId: string): void {
+        if (this.isConnected()) {
+            this.hubConnection.invoke('DeclineCall', callId)
+                .catch(err => console.error('Error declining call:', err));
+        }
+    }
+
+    public endCall(callId: string): void {
+        if (this.isConnected()) {
+            this.hubConnection.invoke('EndCall', callId)
+                .catch(err => console.error('Error ending call:', err));
+        }
+    }
+
+    public sendCallCandidate(participantId: number, candidate: RTCIceCandidate): Promise<void> {
+        if (!this.isConnected()) return Promise.reject('SignalR not connected');
+        const dto = {
+            candidate: (candidate as any).candidate,
+            sdpMid: (candidate as any).sdpMid ?? null,
+            sdpMLineIndex: (candidate as any).sdpMLineIndex ?? null,
+        };
+        return this.hubConnection.invoke('SendCallCandidate', participantId, dto);
+    }
+
+    public sendCallOffer(participantId: number, offer: RTCSessionDescriptionInit): Promise<void> {
+        if (!this.isConnected()) return Promise.reject('SignalR not connected');
+        const dto = { type: offer.type || 'offer', sdp: (offer as any).sdp };
+        return this.hubConnection.invoke('SendCallOffer', participantId, dto);
+    }
+
+    public sendCallAnswer(participantId: number, answer: RTCSessionDescriptionInit): Promise<void> {
+        if (!this.isConnected()) return Promise.reject('SignalR not connected');
+        const dto = { type: answer.type || 'answer', sdp: (answer as any).sdp };
+        return this.hubConnection.invoke('SendCallAnswer', participantId, dto);
     }
 
 }

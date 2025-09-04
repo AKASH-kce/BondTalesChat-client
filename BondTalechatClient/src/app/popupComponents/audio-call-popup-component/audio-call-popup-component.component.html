@@ -1,12 +1,27 @@
-<div class="call-container" cdkDrag cdkDragRootElement=".mat-mdc-dialog-container">
+<div class="audio-call-container" cdkDrag cdkDragRootElement=".mat-mdc-dialog-container" [class.minimized]="isMinimized">
   <!-- Header -->
   <div class="call-header" cdkDragHandle>
-    <span class="call-title"><i class="fa-solid fa-phone"></i> Audio Call</span>
+    <div class="call-info">
+      <div class="call-status">
+        <div class="status-indicator" [class.connecting]="callState.isInCall && !callState.participants.length" 
+             [class.connected]="callState.isInCall && callState.participants.length">
+          <div class="pulse-ring"></div>
+          <div class="pulse-dot"></div>
+        </div>
+        <span class="call-title">
+          <i class="fa-solid fa-phone"></i> 
+          {{ callState.isInCall ? 'Audio Call' : 'Connecting...' }}
+        </span>
+      </div>
+      <div class="call-duration" *ngIf="callState.isInCall">
+        {{ formatDuration(callState.callDuration) }}
+      </div>
+    </div>
     <div class="call-actions">
-      <button class="min-btn" (click)="toggleMinimize()">
+      <button class="min-btn" (click)="toggleMinimize()" [title]="isMinimized ? 'Maximize' : 'Minimize'">
         <i class="fa-solid" [ngClass]="isMinimized ? 'fa-window-maximize' : 'fa-window-minimize'"></i>
       </button>
-      <button class="close-btn" (click)="endCall()">
+      <button class="close-btn" (click)="endCall()" title="End Call">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -14,15 +29,178 @@
 
   <!-- Body -->
   <div class="call-body" *ngIf="!isMinimized">
-    <div class="user-avatar">
-      <i class="fa-solid fa-user"></i>
-    </div>
-    <p class="user-info">Calling User ID: {{ data.userId }}</p>
+    <!-- Main Call Area -->
+    <div class="call-main-area">
+      <!-- Participant Avatars -->
+      <div class="participants-section">
+        <div class="participant-avatar main-participant" 
+             *ngFor="let participant of callState.participants; trackBy: trackByParticipantId">
+          <div class="avatar-container">
+            <div class="avatar-circle" [class.speaking]="participant.isSpeaking">
+              <i class="fa-solid fa-user" *ngIf="!participant.avatar"></i>
+              <img [src]="participant.avatar" *ngIf="participant.avatar" alt="Participant">
+            </div>
+            <div class="speaking-indicator" *ngIf="participant.isSpeaking">
+              <div class="sound-waves">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+              </div>
+            </div>
+          </div>
+          <div class="participant-info">
+            <div class="participant-name">{{ participant.name }}</div>
+            <div class="participant-status">
+              <div class="connection-quality" 
+                   [style.background-color]="getQualityColor(participant.connectionQuality)"
+                   [title]="'Connection: ' + participant.connectionQuality">
+                <div class="quality-bar"></div>
+              </div>
+              <span class="status-text">{{ getStatusText(participant) }}</span>
+            </div>
+          </div>
+        </div>
 
+        <!-- Local User Avatar -->
+        <div class="participant-avatar local-participant">
+          <div class="avatar-container">
+            <div class="avatar-circle" [class.muted]="callState.isMuted">
+              <i class="fa-solid fa-user" *ngIf="!localUserAvatar"></i>
+              <img [src]="localUserAvatar" *ngIf="localUserAvatar" alt="You">
+            </div>
+            <div class="mute-indicator" *ngIf="callState.isMuted">
+              <i class="fa-solid fa-microphone-slash"></i>
+            </div>
+          </div>
+          <div class="participant-info">
+            <div class="participant-name">You</div>
+            <div class="participant-status">
+              <span class="status-text">{{ callState.isMuted ? 'Muted' : 'Speaking' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call Status -->
+      <div class="call-status-section" *ngIf="!callState.participants.length && callState.isInCall">
+        <div class="status-message">
+          <div class="loading-spinner"></div>
+          <p>Connecting to {{ data.userName || 'participant' }}...</p>
+        </div>
+      </div>
+
+      <!-- Call Quality Indicator -->
+      <div class="call-quality-indicator" *ngIf="callState.isInCall">
+        <div class="quality-info">
+          <i class="fa-solid fa-signal"></i>
+          <span>Call Quality: {{ callState.connectionQuality | titlecase }}</span>
+        </div>
+        <div class="quality-bars">
+          <div class="quality-bar" 
+               *ngFor="let bar of getQualityBars(callState.connectionQuality)"
+               [class.active]="bar.active">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call Controls -->
     <div class="call-controls">
-      <button class="end-call-btn" (click)="endCall()">
-        <i class="fa-solid fa-phone-slash"></i> End Call
+      <div class="control-group">
+        <!-- Audio Controls -->
+        <button class="control-btn audio-btn" 
+                [class.active]="callState.isAudioEnabled" 
+                [class.muted]="callState.isMuted"
+                (click)="toggleAudio()"
+                [title]="callState.isMuted ? 'Unmute' : 'Mute'">
+          <i class="fa-solid" [ngClass]="callState.isMuted ? 'fa-microphone-slash' : 'fa-microphone'"></i>
+        </button>
+
+        <!-- Speaker Controls -->
+        <button class="control-btn speaker-btn" 
+                [class.active]="isSpeakerOn"
+                (click)="toggleSpeaker()"
+                [title]="isSpeakerOn ? 'Turn off speaker' : 'Turn on speaker'">
+          <i class="fa-solid" [ngClass]="isSpeakerOn ? 'fa-volume-high' : 'fa-volume-xmark'"></i>
+        </button>
+
+        <!-- More Options -->
+        <button class="control-btn more-btn" 
+                (click)="toggleMoreOptions()"
+                [class.active]="showMoreOptions"
+                title="More options">
+          <i class="fa-solid fa-ellipsis-v"></i>
+        </button>
+      </div>
+
+      <!-- End Call Button -->
+      <button class="control-btn end-call-btn" (click)="endCall()" title="End call">
+        <i class="fa-solid fa-phone-slash"></i>
       </button>
     </div>
+
+    <!-- More Options Panel -->
+    <div class="more-options-panel" *ngIf="showMoreOptions">
+      <div class="option-item" (click)="toggleChat()">
+        <i class="fa-solid fa-comment"></i>
+        <span>Chat</span>
+      </div>
+      <div class="option-item" (click)="toggleRecording()">
+        <i class="fa-solid" [ngClass]="isRecording ? 'fa-stop' : 'fa-circle'"></i>
+        <span>{{ isRecording ? 'Stop Recording' : 'Start Recording' }}</span>
+      </div>
+      <div class="option-item" (click)="toggleSettings()">
+        <i class="fa-solid fa-cog"></i>
+        <span>Settings</span>
+      </div>
+      <div class="option-item" (click)="inviteParticipants()">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Invite</span>
+      </div>
+      <div class="option-item" (click)="switchToVideo()">
+        <i class="fa-solid fa-video"></i>
+        <span>Switch to Video</span>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel" *ngIf="showChat">
+      <div class="chat-header">
+        <span>Chat</span>
+        <button class="close-chat" (click)="toggleChat()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="chat-messages">
+        <div class="message" *ngFor="let message of chatMessages">
+          <div class="message-sender">{{ message.sender }}</div>
+          <div class="message-content">{{ message.content }}</div>
+          <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" 
+               [(ngModel)]="newMessage" 
+               (keyup.enter)="sendMessage()" 
+               placeholder="Type a message...">
+        <button (click)="sendMessage()">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimized View -->
+  <div class="minimized-view" *ngIf="isMinimized">
+    <div class="minimized-info">
+      <div class="minimized-avatar">
+        <i class="fa-solid fa-phone"></i>
+      </div>
+      <div class="minimized-details">
+        <div class="minimized-title">Audio Call</div>
+        <div class="minimized-participants">{{ callState.participants.length }} participant(s)</div>
+      </div>
+    </div>
+    <div class="minimized-duration">{{ formatDuration(callState.callDuration) }}</div>
   </div>
 </div>

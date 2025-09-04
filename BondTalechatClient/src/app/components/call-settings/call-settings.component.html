@@ -1,0 +1,250 @@
+<div class="call-settings-container">
+  <div class="settings-header">
+    <h2>Call Settings</h2>
+    <div class="header-actions">
+      <button class="action-btn export-btn" (click)="exportSettings()" title="Export settings">
+        <i class="fa-solid fa-download"></i>
+      </button>
+      <button class="action-btn import-btn" (click)="document.getElementById('import-file')?.click()" title="Import settings">
+        <i class="fa-solid fa-upload"></i>
+      </button>
+      <button class="action-btn reset-btn" (click)="resetToDefaults()" title="Reset to defaults">
+        <i class="fa-solid fa-undo"></i>
+      </button>
+    </div>
+    <input type="file" id="import-file" accept=".json" (change)="importSettings($event)" style="display: none;">
+  </div>
+
+  <div class="settings-content">
+    <!-- Media Devices -->
+    <div class="settings-section">
+      <h3>Media Devices</h3>
+      
+      <div class="setting-group">
+        <label>Audio Input</label>
+        <select [(ngModel)]="settings.audioInput" (change)="onSettingChange()">
+          <option *ngFor="let device of availableAudioInputs" [value]="device.deviceId">
+            {{ device.label || 'Microphone ' + (availableAudioInputs.indexOf(device) + 1) }}
+          </option>
+        </select>
+        <button class="test-btn" (click)="testAudio()">Test</button>
+      </div>
+
+      <div class="setting-group">
+        <label>Audio Output</label>
+        <select [(ngModel)]="settings.audioOutput" (change)="onSettingChange()">
+          <option *ngFor="let device of availableAudioOutputs" [value]="device.deviceId">
+            {{ device.label || 'Speaker ' + (availableAudioOutputs.indexOf(device) + 1) }}
+          </option>
+        </select>
+        <button class="test-btn" (click)="testAudio()">Test</button>
+      </div>
+
+      <div class="setting-group">
+        <label>Video Input</label>
+        <select [(ngModel)]="settings.videoInput" (change)="onSettingChange()">
+          <option *ngFor="let device of availableVideoInputs" [value]="device.deviceId">
+            {{ device.label || 'Camera ' + (availableVideoInputs.indexOf(device) + 1) }}
+          </option>
+        </select>
+        <button class="test-btn" (click)="testVideo()">Test</button>
+      </div>
+    </div>
+
+    <!-- Quality Settings -->
+    <div class="settings-section">
+      <h3>Quality Settings</h3>
+      
+      <div class="setting-group">
+        <label>Audio Quality</label>
+        <select [(ngModel)]="settings.audioQuality" (change)="onSettingChange()">
+          <option value="low">Low (64kbps)</option>
+          <option value="medium">Medium (128kbps)</option>
+          <option value="high">High (256kbps)</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label>Video Quality</label>
+        <select [(ngModel)]="settings.videoQuality" (change)="onSettingChange()">
+          <option value="low">Low (480p)</option>
+          <option value="medium">Medium (720p)</option>
+          <option value="high">High (1080p)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Audio Processing -->
+    <div class="settings-section">
+      <h3>Audio Processing</h3>
+      
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableNoiseSuppression" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Noise Suppression
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableEchoCancellation" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Echo Cancellation
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableAutoGainControl" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Auto Gain Control
+        </label>
+      </div>
+    </div>
+
+    <!-- Call Features -->
+    <div class="settings-section">
+      <h3>Call Features</h3>
+      
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableVideo" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Video Calls
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableAudio" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Audio Calls
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableScreenShare" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Screen Sharing
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableRecording" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Call Recording
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableChat" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Chat During Calls
+        </label>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="settings-section">
+      <h3>Notifications</h3>
+      
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableNotifications" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Notifications
+        </label>
+      </div>
+
+      <div class="setting-group">
+        <label>Ringtone</label>
+        <select [(ngModel)]="settings.ringtone" (change)="onSettingChange()">
+          <option *ngFor="let ringtone of availableRingtones" [value]="ringtone">
+            {{ ringtone | titlecase }}
+          </option>
+        </select>
+        <button class="test-btn" (click)="testRingtone()">Test</button>
+      </div>
+
+      <div class="setting-group">
+        <label>Notification Sound</label>
+        <select [(ngModel)]="settings.notificationSound" (change)="onSettingChange()">
+          <option *ngFor="let sound of availableNotificationSounds" [value]="sound">
+            {{ sound | titlecase }}
+          </option>
+        </select>
+        <button class="test-btn" (click)="testNotificationSound()">Test</button>
+      </div>
+    </div>
+
+    <!-- Auto Answer -->
+    <div class="settings-section">
+      <h3>Auto Answer</h3>
+      
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.autoAnswer" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Auto Answer
+        </label>
+      </div>
+
+      <div class="setting-group" *ngIf="settings.autoAnswer">
+        <label>Auto Answer Delay (seconds)</label>
+        <input type="number" 
+               [(ngModel)]="settings.autoAnswerDelay" 
+               (change)="onSettingChange()"
+               min="1" 
+               max="30">
+      </div>
+    </div>
+
+    <!-- Display Options -->
+    <div class="settings-section">
+      <h3>Display Options</h3>
+      
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.showCallDuration" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Show Call Duration
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.showParticipantCount" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Show Participant Count
+        </label>
+      </div>
+
+      <div class="setting-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="settings.enableCallHistory" (change)="onSettingChange()">
+          <span class="checkmark"></span>
+          Enable Call History
+        </label>
+      </div>
+    </div>
+
+    <!-- Call Limits -->
+    <div class="settings-section">
+      <h3>Call Limits</h3>
+      
+      <div class="setting-group">
+        <label>Maximum Call Duration (minutes)</label>
+        <input type="number" 
+               [(ngModel)]="settings.maxCallDuration" 
+               (change)="onSettingChange()"
+               min="0" 
+               max="1440"
+               placeholder="0 = No limit">
+      </div>
+    </div>
+  </div>
+</div>

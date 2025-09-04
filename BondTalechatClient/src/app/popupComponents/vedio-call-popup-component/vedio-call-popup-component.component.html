@@ -1,12 +1,27 @@
-<div class="video-call-container" cdkDrag cdkDragRootElement=".mat-mdc-dialog-container">
+<div class="video-call-container" cdkDrag cdkDragRootElement=".mat-mdc-dialog-container" [class.minimized]="isMinimized">
   <!-- Header -->
   <div class="call-header" cdkDragHandle>
-    <span class="call-title"><i class="fa-solid fa-video"></i> Video Call</span>
+    <div class="call-info">
+      <div class="call-status">
+        <div class="status-indicator" [class.connecting]="callState.isInCall && !callState.participants.length" 
+             [class.connected]="callState.isInCall && callState.participants.length">
+          <div class="pulse-ring"></div>
+          <div class="pulse-dot"></div>
+        </div>
+        <span class="call-title">
+          <i class="fa-solid fa-video"></i> 
+          {{ callState.isInCall ? 'Video Call' : 'Connecting...' }}
+        </span>
+      </div>
+      <div class="call-duration" *ngIf="callState.isInCall">
+        {{ formatDuration(callState.callDuration) }}
+      </div>
+    </div>
     <div class="call-actions">
-      <button class="min-btn" (click)="toggleMinimize()">
+      <button class="min-btn" (click)="toggleMinimize()" [title]="isMinimized ? 'Maximize' : 'Minimize'">
         <i class="fa-solid" [ngClass]="isMinimized ? 'fa-window-maximize' : 'fa-window-minimize'"></i>
       </button>
-      <button class="close-btn" (click)="endCall()">
+      <button class="close-btn" (click)="endCall()" title="End Call">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -14,28 +29,176 @@
 
   <!-- Body -->
   <div class="call-body" *ngIf="!isMinimized">
-    <div class="video-grid">
-      <!-- Remote Video -->
-      <div class="video-stream remote">
-        <p>Remote Video User ID: {{ data.userId }}</p>
+    <!-- Video Grid -->
+    <div class="video-container">
+      <div class="video-grid" [class.single-participant]="callState.participants.length <= 1">
+        <!-- Remote Video Streams -->
+        <div class="video-stream remote" 
+             *ngFor="let participant of callState.participants; trackBy: trackByParticipantId"
+             [class.screen-sharing]="participant.isScreenSharing">
+          <video 
+                 [appVideoSrc]="participant.stream || null" 
+                 autoplay 
+                 playsinline
+                 (loadedmetadata)="onVideoLoaded($event)">
+          </video>
+          
+          <!-- Participant Info Overlay -->
+          <div class="participant-overlay">
+            <div class="participant-info">
+              <div class="participant-avatar" *ngIf="!participant.isVideoEnabled">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="participant-name">{{ participant.name }}</div>
+              <div class="participant-status">
+                <i class="fa-solid" 
+                   [ngClass]="participant.isScreenSharing ? 'fa-desktop' : 'fa-video'"
+                   [class.disabled]="!participant.isVideoEnabled && !participant.isScreenSharing">
+                </i>
+              </div>
+            </div>
+            
+            <!-- Connection Quality Indicator -->
+            <div class="connection-quality" 
+                 [style.background-color]="getQualityColor(participant.connectionQuality)"
+                 [title]="'Connection: ' + participant.connectionQuality">
+              <div class="quality-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local Video Stream -->
+        <div class="video-stream local" [class.hidden]="!callState.isVideoEnabled">
+          <video #localVideo 
+                 [appVideoSrc]="localStream" 
+                 autoplay 
+                 playsinline 
+                 muted>
+          </video>
+          
+          <!-- Local Video Controls Overlay -->
+          <div class="local-overlay">
+            <div class="local-info">
+              <div class="local-avatar" *ngIf="!callState.isVideoEnabled">
+                <i class="fa-solid fa-user"></i>
+              </div>
+              <div class="local-name">You</div>
+            </div>
+            
+            <!-- Screen Share Indicator -->
+            <div class="screen-share-indicator" *ngIf="callState.isScreenSharing">
+              <i class="fa-solid fa-desktop"></i>
+              <span>Screen Sharing</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Local Video -->
-      <div class="video-stream local">
-        <p>Local Camera</p>
+      <!-- Call Status Messages -->
+      <div class="call-status-messages" *ngIf="!callState.participants.length && callState.isInCall">
+        <div class="status-message">
+          <div class="loading-spinner"></div>
+          <p>Waiting for participants to join...</p>
+        </div>
       </div>
     </div>
 
+    <!-- Call Controls -->
     <div class="call-controls">
-      <button class="end-call-btn" (click)="endCall()">
-        <i class="fa-solid fa-phone-slash"></i> End Call
-      </button>
-      <button class="mute-btn">
-        <i class="fa-solid fa-microphone-slash"></i> Mute
-      </button>
-      <button class="camera-btn">
-        <i class="fa-solid fa-video-slash"></i> Video Off
+      <div class="control-group">
+        <!-- Audio Controls -->
+        <button class="control-btn audio-btn" 
+                [class.active]="callState.isAudioEnabled" 
+                [class.muted]="callState.isMuted"
+                (click)="toggleAudio()"
+                [title]="callState.isMuted ? 'Unmute' : 'Mute'">
+          <i class="fa-solid" [ngClass]="callState.isMuted ? 'fa-microphone-slash' : 'fa-microphone'"></i>
+        </button>
+
+        <!-- Video Controls -->
+        <button class="control-btn video-btn" 
+                [class.active]="callState.isVideoEnabled" 
+                (click)="toggleVideo()"
+                [title]="callState.isVideoEnabled ? 'Turn off camera' : 'Turn on camera'">
+          <i class="fa-solid" [ngClass]="callState.isVideoEnabled ? 'fa-video' : 'fa-video-slash'"></i>
+        </button>
+
+        <!-- Screen Share -->
+        <button class="control-btn screen-share-btn" 
+                [class.active]="callState.isScreenSharing" 
+                (click)="toggleScreenShare()"
+                [title]="callState.isScreenSharing ? 'Stop sharing' : 'Share screen'">
+          <i class="fa-solid fa-desktop"></i>
+        </button>
+
+        <!-- More Options -->
+        <button class="control-btn more-btn" 
+                (click)="toggleMoreOptions()"
+                [class.active]="showMoreOptions"
+                title="More options">
+          <i class="fa-solid fa-ellipsis-v"></i>
+        </button>
+      </div>
+
+      <!-- End Call Button -->
+      <button class="control-btn end-call-btn" (click)="endCall()" title="End call">
+        <i class="fa-solid fa-phone-slash"></i>
       </button>
     </div>
+
+    <!-- More Options Panel -->
+    <div class="more-options-panel" *ngIf="showMoreOptions">
+      <div class="option-item" (click)="toggleChat()">
+        <i class="fa-solid fa-comment"></i>
+        <span>Chat</span>
+      </div>
+      <div class="option-item" (click)="toggleRecording()">
+        <i class="fa-solid" [ngClass]="isRecording ? 'fa-stop' : 'fa-circle'"></i>
+        <span>{{ isRecording ? 'Stop Recording' : 'Start Recording' }}</span>
+      </div>
+      <div class="option-item" (click)="toggleSettings()">
+        <i class="fa-solid fa-cog"></i>
+        <span>Settings</span>
+      </div>
+      <div class="option-item" (click)="inviteParticipants()">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Invite</span>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel" *ngIf="showChat">
+      <div class="chat-header">
+        <span>Chat</span>
+        <button class="close-chat" (click)="toggleChat()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <div class="chat-messages">
+        <div class="message" *ngFor="let message of chatMessages">
+          <div class="message-sender">{{ message.sender }}</div>
+          <div class="message-content">{{ message.content }}</div>
+          <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input type="text" 
+               [(ngModel)]="newMessage" 
+               (keyup.enter)="sendMessage()" 
+               placeholder="Type a message...">
+        <button (click)="sendMessage()">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Minimized View -->
+  <div class="minimized-view" *ngIf="isMinimized">
+    <div class="minimized-info">
+      <i class="fa-solid fa-video"></i>
+      <span>{{ callState.participants.length }} participant(s)</span>
+    </div>
+    <div class="minimized-duration">{{ formatDuration(callState.callDuration) }}</div>
   </div>
 </div>

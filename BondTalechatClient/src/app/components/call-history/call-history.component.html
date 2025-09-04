@@ -1,0 +1,111 @@
+<div class="call-history-container">
+  <!-- Header -->
+  <div class="history-header">
+    <h2>Call History</h2>
+    <div class="header-actions">
+      <button class="clear-btn" (click)="clearHistory()" title="Clear all history">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="filters-section">
+    <div class="filter-tabs">
+      <button class="filter-tab" 
+              [class.active]="selectedFilter === 'all'"
+              (click)="onFilterChange('all')">
+        All ({{ callHistory.length }})
+      </button>
+      <button class="filter-tab" 
+              [class.active]="selectedFilter === 'missed'"
+              (click)="onFilterChange('missed')">
+        Missed ({{ callHistory.filter(c => c.status === 'missed').length }})
+      </button>
+      <button class="filter-tab" 
+              [class.active]="selectedFilter === 'completed'"
+              (click)="onFilterChange('completed')">
+        Completed ({{ callHistory.filter(c => c.status === 'completed').length }})
+      </button>
+      <button class="filter-tab" 
+              [class.active]="selectedFilter === 'declined'"
+              (click)="onFilterChange('declined')">
+        Declined ({{ callHistory.filter(c => c.status === 'declined').length }})
+      </button>
+    </div>
+
+    <div class="search-section">
+      <div class="search-input">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" 
+               [(ngModel)]="searchTerm" 
+               (input)="onSearchChange()"
+               placeholder="Search calls...">
+      </div>
+    </div>
+  </div>
+
+  <!-- Call History List -->
+  <div class="history-list">
+    <div class="call-item" 
+         *ngFor="let call of filteredHistory; trackBy: trackByCallId"
+         [class.missed]="call.status === 'missed'"
+         [class.completed]="call.status === 'completed'"
+         [class.declined]="call.status === 'declined'">
+      
+      <!-- Call Info -->
+      <div class="call-info">
+        <div class="call-type-icon">
+          <i class="fa-solid" [ngClass]="getCallTypeIcon(call.callType)"></i>
+        </div>
+        
+        <div class="call-details">
+          <div class="participant-name">{{ call.participantName }}</div>
+          <div class="call-meta">
+            <span class="call-type">{{ call.callType | titlecase }}</span>
+            <span class="call-date">{{ call.startTime | date:'short' }}</span>
+            <span class="call-duration" *ngIf="call.status === 'completed'">
+              {{ formatCallDuration(call.duration) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call Status -->
+      <div class="call-status">
+        <div class="status-indicator" 
+             [style.background-color]="getStatusColor(call.status)">
+          <i class="fa-solid" [ngClass]="getStatusIcon(call.status)"></i>
+        </div>
+        <div class="status-text">{{ call.status | titlecase }}</div>
+      </div>
+
+      <!-- Call Actions -->
+      <div class="call-actions">
+        <button class="action-btn retry-btn" 
+                (click)="retryCall(call)"
+                [disabled]="call.status === 'completed'"
+                title="Retry call">
+          <i class="fa-solid fa-phone"></i>
+        </button>
+        <button class="action-btn delete-btn" 
+                (click)="deleteCall(call)"
+                title="Delete call">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredHistory.length === 0">
+      <div class="empty-icon">
+        <i class="fa-solid fa-phone-slash"></i>
+      </div>
+      <div class="empty-message">
+        <h3>No calls found</h3>
+        <p *ngIf="selectedFilter === 'all'">You haven't made any calls yet.</p>
+        <p *ngIf="selectedFilter !== 'all'">No {{ selectedFilter }} calls found.</p>
+      </div>
+    </div>
+  </div>
+</div>
