@@ -2,11 +2,17 @@
   <!-- Header -->
   <div class="history-header">
     <h2>Call History</h2>
-    <div class="header-actions">
-      <button class="clear-btn" (click)="clearHistory()" title="Clear all history">
-        <i class="fa-solid fa-trash"></i>
-      </button>
-    </div>
+      <div class="header-actions">
+    <button class="refresh-btn" (click)="refreshCallHistory()" title="Refresh call history">
+      <i class="fa-solid fa-refresh"></i>
+    </button>
+    <button class="test-btn" (click)="simulateTestCalls()" title="Add test call data">
+      <i class="fa-solid fa-flask"></i>
+    </button>
+    <button class="clear-btn" (click)="clearHistory()" title="Clear all history">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </div>
   </div>
 
   <!-- Filters and Search -->
@@ -15,22 +21,22 @@
       <button class="filter-tab" 
               [class.active]="selectedFilter === 'all'"
               (click)="onFilterChange('all')">
-        All ({{ callHistory.length }})
+        All ({{ allCallsCount }})
       </button>
       <button class="filter-tab" 
               [class.active]="selectedFilter === 'missed'"
               (click)="onFilterChange('missed')">
-        Missed ({{ callHistory.filter(c => c.status === 'missed').length }})
+        Missed ({{ missedCallsCount }})
       </button>
       <button class="filter-tab" 
               [class.active]="selectedFilter === 'completed'"
               (click)="onFilterChange('completed')">
-        Completed ({{ callHistory.filter(c => c.status === 'completed').length }})
+        Completed ({{ completedCallsCount }})
       </button>
       <button class="filter-tab" 
               [class.active]="selectedFilter === 'declined'"
               (click)="onFilterChange('declined')">
-        Declined ({{ callHistory.filter(c => c.status === 'declined').length }})
+        Declined ({{ declinedCallsCount }})
       </button>
     </div>
 

@@ -84,7 +84,12 @@ export class VedioCallPopupComponentComponent implements OnInit, OnDestroy {
           return;
         }
         const callType = this.data?.callType ?? 'video';
-        await this.callService.initializeCall(callType, String(participantId));
+        await this.callService.initializeCall(
+          callType, 
+          String(participantId),
+          this.data?.participantName || (this.data as any)?.userName || 'Unknown',
+          (this.data as any)?.participantAvatar || (this.data as any)?.profileImage
+        );
       }
       // Use stream managed by CallService (single permission prompt)
       this.localStream = this.callService.getLocalStream();
@@ -230,6 +235,14 @@ export class VedioCallPopupComponentComponent implements OnInit, OnDestroy {
   endCall() {
     this.callService.endCall();
     this.dialogRef.close('ended');
+  }
+
+  // Handle dialog close (when user closes without ending call)
+  onDialogClose() {
+    // If call is still active, cancel it
+    if (this.callService.getLocalStream()) {
+      this.callService.cancelCall();
+    }
   }
 
   private cleanup() {

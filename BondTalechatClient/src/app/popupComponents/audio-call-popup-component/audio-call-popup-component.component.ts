@@ -69,7 +69,12 @@ export class AudioCallPopupComponentComponent implements OnInit, OnDestroy {
 
   private async initializeCall() {
     try {
-      await this.callService.initializeCall('audio', this.data.userId.toString());
+      await this.callService.initializeCall(
+        'audio', 
+        this.data.userId.toString(),
+        this.data.userName || 'Unknown',
+        (this.data as any).profileImage
+      );
     } catch (error) {
       console.error('Error initializing call:', error);
       this.showError(this.mapMediaError(error));
@@ -205,6 +210,14 @@ export class AudioCallPopupComponentComponent implements OnInit, OnDestroy {
   endCall() {
     this.callService.endCall();
     this.dialogRef.close('ended');
+  }
+
+  // Handle dialog close (when user closes without ending call)
+  onDialogClose() {
+    // If call is still active, cancel it
+    if (this.callService.getLocalStream()) {
+      this.callService.cancelCall();
+    }
   }
 
   private showError(message: string) {

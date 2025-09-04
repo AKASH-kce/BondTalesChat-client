@@ -6,6 +6,8 @@ import { currentUserDetialsService } from '../../Services/current-user-detials-s
 import { IConversation } from '../../Models/user.detials.model';
 import { AddUserPopupComponent } from '../../popupComponents/add-user-popup.component/add-user-popup.component';
 import { MatDialog } from '@angular/material/dialog';
+import { CallService } from '../../Services/call.service';
+import { VedioCallPopupComponentComponent } from '../../popupComponents/vedio-call-popup-component/vedio-call-popup-component.component';
 
 @Component({
   selector: 'app-users-list-side-bar',
@@ -23,7 +25,8 @@ export class UsersListSideBarComponent implements OnInit {
     private chatService: ChatService,
     public currentUserDetialService: currentUserDetialsService,
     private userService: UserService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private callService: CallService
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -64,6 +67,78 @@ export class UsersListSideBarComponent implements OnInit {
   }
   openAddUserDialog() {
     this.dialog.open(AddUserPopupComponent);
+  }
+
+  async startAudioCall(conversation: IConversation, event: MouseEvent) {
+    event.stopPropagation(); // Prevent conversation selection
+    
+    try {
+      await this.callService.initializeCall(
+        'audio', 
+        String(conversation.otherUserId),
+        conversation.otherUserName,
+        conversation.otherUserProfilePicture || this.defaultProfileImage
+      );
+      
+      // Open the call popup
+      const dialogRef = this.dialog.open(VedioCallPopupComponentComponent, {
+        data: {
+          callType: 'audio',
+          participantId: conversation.otherUserId,
+          participantName: conversation.otherUserName,
+          participantAvatar: conversation.otherUserProfilePicture || this.defaultProfileImage
+        },
+        disableClose: true,
+        panelClass: 'draggable-dialog'
+      });
+
+      // Handle dialog close
+      dialogRef.afterClosed().subscribe(result => {
+        if (result !== 'ended') {
+          // Call was cancelled or closed without ending
+          this.callService.cancelCall();
+        }
+      });
+    } catch (error) {
+      console.error('Failed to start audio call:', error);
+      alert('Failed to start audio call. Please try again.');
+    }
+  }
+
+  async startVideoCall(conversation: IConversation, event: MouseEvent) {
+    event.stopPropagation(); // Prevent conversation selection
+    
+    try {
+      await this.callService.initializeCall(
+        'video', 
+        String(conversation.otherUserId),
+        conversation.otherUserName,
+        conversation.otherUserProfilePicture || this.defaultProfileImage
+      );
+      
+      // Open the call popup
+      const dialogRef = this.dialog.open(VedioCallPopupComponentComponent, {
+        data: {
+          callType: 'video',
+          participantId: conversation.otherUserId,
+          participantName: conversation.otherUserName,
+          participantAvatar: conversation.otherUserProfilePicture || this.defaultProfileImage
+        },
+        disableClose: true,
+        panelClass: 'draggable-dialog'
+      });
+
+      // Handle dialog close
+      dialogRef.afterClosed().subscribe(result => {
+        if (result !== 'ended') {
+          // Call was cancelled or closed without ending
+          this.callService.cancelCall();
+        }
+      });
+    } catch (error) {
+      console.error('Failed to start video call:', error);
+      alert('Failed to start video call. Please try again.');
+    }
   }
 
 }

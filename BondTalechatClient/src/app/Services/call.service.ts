@@ -70,6 +70,7 @@ export class CallService {
   private pendingOffers: Map<string, { type: string; sdp: string } > = new Map();
   private pendingIce: Map<string, Array<{ candidate: string; sdpMid: string | null; sdpMLineIndex: number | null }>> = new Map();
   private selfUserId?: number;
+  private currentCallParticipant?: { id: string; name: string; avatar?: string };
 
   public callState$ = this.callStateSubject.asObservable();
   public callHistory$ = this.callHistorySubject.asObservable();
@@ -81,6 +82,8 @@ export class CallService {
 
   constructor(private chatService: ChatService) {
     this.loadCallHistory();
+    // Add sample data if no history exists (for testing)
+    this.addSampleCallHistoryIfEmpty();
     // Ensure we are connected to CallHub early so we don't miss server events
     this.ensureCallHub().catch(() => {});
     // Wire SignalR call signaling to WebRTC peer connections
@@ -286,15 +289,18 @@ export class CallService {
           videoTracks: videoTracks.map(t => ({ id: t.id, enabled: t.enabled, readyState: t.readyState }))
         });
       } catch {}
+      const startTime = new Date();
+      console.log('Setting call state - start time:', startTime);
       this.updateCallState({
         isInCall: true,
         callType,
         isVideoEnabled: callType === 'video',
         isAudioEnabled: true,
-        callStartTime: new Date()
+        callStartTime: startTime
       });
       this.startCallTimer();
       this.ensurePeerConnection(participantId);
+      console.log('Call state updated, current state:', this.callStateSubject.value);
       return callType;
     } catch (error: any) {
       // Fallback to audio-only if video device is busy
@@ -330,7 +336,16 @@ export class CallService {
   }
 
   // Initialize outgoing call: prepares media, creates server call, and sends offer
-  async initializeCall(callType: 'audio' | 'video', participantId: string): Promise<void> {
+  async initializeCall(callType: 'audio' | 'video', participantId: string, participantName?: string, participantAvatar?: string): Promise<void> {
+    // Store participant information for call history
+    this.currentCallParticipant = {
+      id: participantId,
+      name: participantName || 'Unknown',
+      avatar: participantAvatar
+    };
+    
+    console.log('Stored participant info for call:', this.currentCallParticipant);
+
     const effectiveType = await this.prepareLocalMedia(callType, participantId);
     // Create call session on server so callee receives IncomingCall
     try {
@@ -342,6 +357,14 @@ export class CallService {
       }
     } catch (e) {
       console.warn('Failed to create server call session (InitiateCall)', e);
+      // Add failed call to history
+      this.addFailedCall(
+        participantId, 
+        participantName || 'Unknown', 
+        effectiveType, 
+        'Server connection failed'
+      );
+      throw e; // Re-throw to let the UI handle the error
     }
     // Create and send an SDP offer so the remote side is prompted to accept
     const pc = this.peerConnections.get(participantId)!;
@@ -350,6 +373,13 @@ export class CallService {
     if (this.callHub && this.callHub.state === signalR.HubConnectionState.Connected) {
       await this.callHub.invoke('SendCallOffer', Number(participantId), { type: offer.type || 'offer', sdp: (offer as any).sdp });
     } else {
+      // Add failed call to history
+      this.addFailedCall(
+        participantId, 
+        participantName || 'Unknown', 
+        effectiveType, 
+        'Call hub not connected'
+      );
       throw new Error('CALL_HUB_NOT_CONNECTED');
     }
   }
@@ -442,6 +472,12 @@ export class CallService {
     this.stopCallTimer();
     this.cleanup();
     
+    // Store call data before clearing the state
+    const currentCallState = this.callStateSubject.value;
+    const callStartTime = currentCallState.callStartTime;
+    const callDuration = currentCallState.callDuration;
+    const callType = currentCallState.callType;
+    
     this.updateCallState({
       isInCall: false,
       isVideoEnabled: false,
@@ -454,19 +490,71 @@ export class CallService {
     });
 
     // Add to call history
-    if (this.callStateSubject.value.callStartTime) {
+    if (callStartTime && this.currentCallParticipant) {
+      console.log('Adding completed call to history:', {
+        participantId: this.currentCallParticipant.id,
+        participantName: this.currentCallParticipant.name,
+        callType: callType,
+        duration: callDuration,
+        startTime: callStartTime
+      });
+      
       this.addToCallHistory({
         id: this.generateCallId(),
-        participantId: 'unknown',
-        participantName: 'Unknown',
-        callType: this.callStateSubject.value.callType,
-        duration: this.callStateSubject.value.callDuration,
-        startTime: this.callStateSubject.value.callStartTime,
+        participantId: this.currentCallParticipant.id,
+        participantName: this.currentCallParticipant.name,
+        callType: callType,
+        duration: callDuration,
+        startTime: callStartTime,
         endTime: new Date(),
         status: 'completed',
         isIncoming: false
       });
+    } else {
+      console.warn('Cannot add call to history - missing data:', {
+        callStartTime: !!callStartTime,
+        currentCallParticipant: !!this.currentCallParticipant,
+        callState: currentCallState
+      });
     }
+
+    // Clear current call participant
+    this.currentCallParticipant = undefined;
+  }
+
+  // Cancel call (when call is cancelled before being answered)
+  cancelCall(): void {
+    this.stopCallTimer();
+    this.cleanup();
+    
+    this.updateCallState({
+      isInCall: false,
+      isVideoEnabled: false,
+      isAudioEnabled: false,
+      isScreenSharing: false,
+      isMuted: false,
+      participants: [],
+      callDuration: 0,
+      callStartTime: null
+    });
+
+    // Add cancelled call to history (short duration)
+    if (this.currentCallParticipant) {
+      this.addToCallHistory({
+        id: this.generateCallId(),
+        participantId: this.currentCallParticipant.id,
+        participantName: this.currentCallParticipant.name,
+        callType: this.callStateSubject.value.callType,
+        duration: 0,
+        startTime: new Date(),
+        endTime: new Date(),
+        status: 'failed',
+        isIncoming: false
+      });
+    }
+
+    // Clear current call participant
+    this.currentCallParticipant = undefined;
   }
 
   // Answer incoming call
@@ -508,7 +596,66 @@ export class CallService {
         await this.callHub.invoke('DeclineCall', callId);
       }
     } catch {}
+    
+    // Add declined call to history
+    this.addToCallHistory({
+      id: this.generateCallId(),
+      participantId: this.currentCallParticipant?.id || 'unknown',
+      participantName: this.currentCallParticipant?.name || 'Unknown',
+      callType: 'audio', // Default type for declined calls
+      duration: 0,
+      startTime: new Date(),
+      endTime: new Date(),
+      status: 'declined',
+      isIncoming: true
+    });
+    
     this.incomingCallSubject.next(null);
+  }
+
+  // Add missed call to history
+  addMissedCall(participantId: string, participantName: string, callType: 'audio' | 'video'): void {
+    this.addToCallHistory({
+      id: this.generateCallId(),
+      participantId: participantId,
+      participantName: participantName,
+      callType: callType,
+      duration: 0,
+      startTime: new Date(),
+      endTime: new Date(),
+      status: 'missed',
+      isIncoming: true
+    });
+  }
+
+  // Handle call timeout (when outgoing call is not answered)
+  handleCallTimeout(participantId: string, participantName: string, callType: 'audio' | 'video'): void {
+    this.addToCallHistory({
+      id: this.generateCallId(),
+      participantId: participantId,
+      participantName: participantName,
+      callType: callType,
+      duration: 0,
+      startTime: new Date(),
+      endTime: new Date(),
+      status: 'missed',
+      isIncoming: false
+    });
+  }
+
+  // Add failed call to history
+  addFailedCall(participantId: string, participantName: string, callType: 'audio' | 'video', reason?: string): void {
+    this.addToCallHistory({
+      id: this.generateCallId(),
+      participantId: participantId,
+      participantName: participantName,
+      callType: callType,
+      duration: 0,
+      startTime: new Date(),
+      endTime: new Date(),
+      status: 'failed',
+      isIncoming: false
+    });
   }
 
   // Get call quality based on connection stats
@@ -649,9 +796,12 @@ export class CallService {
   }
 
   private addToCallHistory(call: CallHistory): void {
+    console.log('Adding call to history:', call);
     this.callHistory.unshift(call);
+    console.log('Updated call history array length:', this.callHistory.length);
     this.callHistorySubject.next([...this.callHistory]);
     this.saveCallHistory();
+    console.log('Call history saved to localStorage');
   }
 
   private loadCallHistory(): void {
@@ -667,7 +817,131 @@ export class CallService {
   }
 
   private saveCallHistory(): void {
-    localStorage.setItem('callHistory', JSON.stringify(this.callHistory));
+    const historyJson = JSON.stringify(this.callHistory);
+    console.log('Saving call history to localStorage:', historyJson);
+    localStorage.setItem('callHistory', historyJson);
+    
+    // Verify it was saved
+    const saved = localStorage.getItem('callHistory');
+    console.log('Verified saved call history:', saved);
+  }
+
+  private addSampleCallHistoryIfEmpty(): void {
+    if (this.callHistory.length === 0) {
+      const sampleCalls: CallHistory[] = [
+        {
+          id: this.generateCallId(),
+          participantId: '1',
+          participantName: 'John Doe',
+          callType: 'video',
+          duration: 180, // 3 minutes
+          startTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          endTime: new Date(Date.now() - 2 * 60 * 60 * 1000 + 180 * 1000),
+          status: 'completed',
+          isIncoming: false
+        },
+        {
+          id: this.generateCallId(),
+          participantId: '2',
+          participantName: 'Jane Smith',
+          callType: 'audio',
+          duration: 0,
+          startTime: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+          endTime: new Date(Date.now() - 4 * 60 * 60 * 1000),
+          status: 'missed',
+          isIncoming: true
+        },
+        {
+          id: this.generateCallId(),
+          participantId: '3',
+          participantName: 'Mike Johnson',
+          callType: 'video',
+          duration: 0,
+          startTime: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+          endTime: new Date(Date.now() - 6 * 60 * 60 * 1000),
+          status: 'declined',
+          isIncoming: true
+        },
+        {
+          id: this.generateCallId(),
+          participantId: '4',
+          participantName: 'Sarah Wilson',
+          callType: 'audio',
+          duration: 420, // 7 minutes
+          startTime: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+          endTime: new Date(Date.now() - 24 * 60 * 60 * 1000 + 420 * 1000),
+          status: 'completed',
+          isIncoming: false
+        }
+      ];
+
+      this.callHistory = sampleCalls;
+      this.callHistorySubject.next([...this.callHistory]);
+      this.saveCallHistory();
+    }
+  }
+
+  // Public methods for call history management
+  clearCallHistory(): void {
+    this.callHistory = [];
+    this.callHistorySubject.next([]);
+    this.saveCallHistory();
+  }
+
+  deleteCallFromHistory(callId: string): void {
+    this.callHistory = this.callHistory.filter(call => call.id !== callId);
+    this.callHistorySubject.next([...this.callHistory]);
+    this.saveCallHistory();
+  }
+
+  retryCall(call: CallHistory): Promise<void> {
+    // Store participant info for the retry
+    this.currentCallParticipant = {
+      id: call.participantId,
+      name: call.participantName
+    };
+    
+    // Initialize the call with the same type
+    return this.initializeCall(call.callType, call.participantId, call.participantName);
+  }
+
+  // Test method to simulate different call scenarios
+  simulateCallScenarios(): void {
+    console.log('Simulating call scenarios for testing...');
+    
+    // Simulate a completed call
+    this.addToCallHistory({
+      id: this.generateCallId(),
+      participantId: 'test1',
+      participantName: 'Test User 1',
+      callType: 'video',
+      duration: 120, // 2 minutes
+      startTime: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+      endTime: new Date(Date.now() - 30 * 60 * 1000 + 120 * 1000),
+      status: 'completed',
+      isIncoming: false
+    });
+
+    // Simulate a missed call
+    this.addMissedCall('test2', 'Test User 2', 'audio');
+
+    // Simulate a declined call
+    this.addToCallHistory({
+      id: this.generateCallId(),
+      participantId: 'test3',
+      participantName: 'Test User 3',
+      callType: 'video',
+      duration: 0,
+      startTime: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
+      endTime: new Date(Date.now() - 60 * 60 * 1000),
+      status: 'declined',
+      isIncoming: true
+    });
+
+    // Simulate a failed call
+    this.addFailedCall('test4', 'Test User 4', 'audio', 'Connection timeout');
+
+    console.log('Call scenarios simulated. Check call history.');
   }
 
   private generateCallId(): string {

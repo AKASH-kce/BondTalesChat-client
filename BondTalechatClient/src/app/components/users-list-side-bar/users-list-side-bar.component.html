@@ -27,6 +27,20 @@
           <p class="message-text">{{conv.lastMessage || 'No messages yet'}}</p>
         </div>
       </div>
+
+      <!-- Call Actions -->
+      <div class="call-actions" *ngIf="!conv.isGroup">
+        <button class="call-btn audio-call-btn" 
+                (click)="startAudioCall(conv, $event)"
+                title="Start audio call">
+          <i class="fa-solid fa-phone"></i>
+        </button>
+        <button class="call-btn video-call-btn" 
+                (click)="startVideoCall(conv, $event)"
+                title="Start video call">
+          <i class="fa-solid fa-video"></i>
+        </button>
+      </div>
     </div>
 
     <div *ngIf="conversations.length === 0" class="empty-state">

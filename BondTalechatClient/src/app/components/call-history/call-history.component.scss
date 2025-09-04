@@ -26,6 +26,46 @@
       display: flex;
       gap: 8px;
 
+      .refresh-btn {
+        background: rgba(76, 175, 80, 0.1);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        color: #4caf50;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+
+        &:hover {
+          background: rgba(76, 175, 80, 0.2);
+          border-color: rgba(76, 175, 80, 0.5);
+        }
+
+        i {
+          margin-right: 4px;
+        }
+      }
+
+      .test-btn {
+        background: rgba(33, 150, 243, 0.1);
+        border: 1px solid rgba(33, 150, 243, 0.3);
+        color: #2196f3;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+
+        &:hover {
+          background: rgba(33, 150, 243, 0.2);
+          border-color: rgba(33, 150, 243, 0.5);
+        }
+
+        i {
+          margin-right: 4px;
+        }
+      }
+
       .clear-btn {
         background: rgba(244, 67, 54, 0.1);
         border: 1px solid rgba(244, 67, 54, 0.3);

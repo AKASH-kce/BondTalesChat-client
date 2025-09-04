@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CallService, CallHistory } from '../../Services/call.service';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-call-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './call-history.component.html',
   styleUrls: ['./call-history.component.scss']
 })
@@ -17,6 +18,25 @@ export class CallHistoryComponent implements OnInit, OnDestroy {
   searchTerm = '';
   
   private callHistorySubscription?: Subscription;
+
+  // Computed properties for filter counts
+  get allCallsCount(): number {
+    return this.callHistory.length;
+  }
+
+  get missedCallsCount(): number {
+    return this.callHistory.filter(c => c.status === 'missed').length;
+  }
+trackByCallId(index: number, call: CallHistory): number {
+    return typeof call.id === 'number' ? call.id : Number(call.id); // ensure id is a number
+  }
+  get completedCallsCount(): number {
+    return this.callHistory.filter(c => c.status === 'completed').length;
+  }
+
+  get declinedCallsCount(): number {
+    return this.callHistory.filter(c => c.status === 'declined').length;
+  }
 
   constructor(private callService: CallService) {}
 
@@ -66,8 +86,7 @@ export class CallHistoryComponent implements OnInit, OnDestroy {
 
   clearHistory() {
     if (confirm('Are you sure you want to clear all call history?')) {
-      // Implementation to clear history
-      console.log('Clearing call history');
+      this.callService.clearCallHistory();
     }
   }
 
@@ -100,14 +119,25 @@ export class CallHistoryComponent implements OnInit, OnDestroy {
   }
 
   retryCall(call: CallHistory) {
-    // Implementation to retry call
-    console.log('Retrying call:', call);
+    this.callService.retryCall(call).catch(error => {
+      console.error('Failed to retry call:', error);
+      alert('Failed to retry call. Please try again.');
+    });
   }
 
   deleteCall(call: CallHistory) {
     if (confirm('Are you sure you want to delete this call record?')) {
-      // Implementation to delete call
-      console.log('Deleting call:', call);
+      this.callService.deleteCallFromHistory(call.id);
     }
+  }
+
+  simulateTestCalls() {
+    this.callService.simulateCallScenarios();
+  }
+
+  refreshCallHistory() {
+    console.log('Manually refreshing call history...');
+    // Force reload from localStorage
+    this.subscribeToCallHistory();
   }
 }

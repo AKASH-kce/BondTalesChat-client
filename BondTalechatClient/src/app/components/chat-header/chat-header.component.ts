@@ -34,54 +34,77 @@ export class ChatHeaderComponent implements OnInit {
     })
   }
   openCallPopup(event: MouseEvent) {
-    if (this.callDialogRef) {
-      this.callDialogRef.close();
-      return;
-    }
-
-    this.callDialogRef = this.dialogRef.open(CallPopupComponentComponent, {
-      data: {
-        userName: this.currentChatUserName,
-        profileImage: this.ProfileImageURl,
-        event: event
+    const vibrateInterval = setInterval(() => {
+      if (navigator.vibrate) {
+        navigator.vibrate([500, 300]);
       }
-    });
+    }, 1000);
 
-    setTimeout(() => {
-      this.callDailogpopupOpen = true;
-    }, 50);
-
-    interface CallDialogResult {
-      action?: 'audioCall' | 'videoCall';
-    }
-
-    this.callDialogRef.afterClosed().subscribe((result: CallDialogResult | undefined) => {
-      const action = result?.action;
-      if (action) {
-        console.log('Call action:', action);
-        if (action === 'audioCall') {
-          console.log('Initiating audio call...');
-          console.log('User ID:', this.useId);
-          this.dialogRef.open(AudioCallPopupComponentComponent, {
-            data: {
-              userId: this.useId
-            },
-            panelClass: 'draggable-dialog'
-          });
-        }
-        if (action === 'videoCall') {
-          console.log('Initiating video call...');
-          console.log('User ID:', this.useId);
-          this.dialogRef.open(VedioCallPopupComponentComponent, {
-            data: {
-              userId: this.useId
-            },
-            panelClass: 'draggable-dialog'
-          });
-        }
+    navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((stream) => {
+      clearInterval(vibrateInterval);
+      if (navigator.vibrate) {
+        navigator.vibrate(0);
       }
-      this.callDailogpopupOpen = false;
-      this.callDialogRef = undefined;
+      if (this.callDialogRef) {
+        this.callDialogRef.close();
+        return;
+      }
+
+      this.callDialogRef = this.dialogRef.open(CallPopupComponentComponent, {
+        data: {
+          userName: this.currentChatUserName,
+          profileImage: this.ProfileImageURl,
+          event: event
+        }
+      });
+
+      setTimeout(() => {
+        this.callDailogpopupOpen = true;
+      }, 50);
+
+      interface CallDialogResult {
+        action?: 'audioCall' | 'videoCall';
+      }
+
+      this.callDialogRef.afterClosed().subscribe((result: CallDialogResult | undefined) => {
+        const action = result?.action;
+        if (action) {
+          console.log('Call action:', action);
+          if (action === 'audioCall') {
+            console.log('Initiating audio call...');
+            console.log('User ID:', this.useId);
+            this.dialogRef.open(AudioCallPopupComponentComponent, {
+              data: {
+                userId: this.useId,
+                userName: this.currentChatUserName,
+                profileImage: this.ProfileImageURl
+              },
+              panelClass: 'draggable-dialog'
+            });
+          }
+          if (action === 'videoCall') {
+            console.log('Initiating video call...');
+            console.log('User ID:', this.useId);
+            this.dialogRef.open(VedioCallPopupComponentComponent, {
+              data: {
+                userId: this.useId,
+                userName: this.currentChatUserName,
+                profileImage: this.ProfileImageURl
+              },
+              panelClass: 'draggable-dialog'
+            });
+          }
+        }
+        this.callDailogpopupOpen = false;
+        this.callDialogRef = undefined;
+      });
+    }).catch((error) => {
+      clearInterval(vibrateInterval);
+      if (navigator.vibrate) {
+        navigator.vibrate(0);
+      }
+      console.error('Error accessing media devices.', error);
+      alert('Error accessing media devices. Please ensure you have a microphone and camera connected, and that you have granted permission to access them.');
     });
   }
 

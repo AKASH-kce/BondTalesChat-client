@@ -136,6 +136,52 @@
       }
     }
   }
+
+  .call-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-left: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .call-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s ease;
+
+      &.audio-call-btn {
+        background-color: #25d366;
+        color: white;
+
+        &:hover {
+          background-color: #128c7e;
+          transform: scale(1.1);
+        }
+      }
+
+      &.video-call-btn {
+        background-color: #007bff;
+        color: white;
+
+        &:hover {
+          background-color: #0056b3;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  &:hover .call-actions {
+    opacity: 1;
+  }
 }
 
 .empty-state {
