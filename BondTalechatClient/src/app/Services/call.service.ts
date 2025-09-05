@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ChatService } from './chat.Service';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
+import { UserService } from './user.service';
 
 export interface CallState {
   isInCall: boolean;
@@ -75,12 +76,13 @@ export class CallService implements AfterViewInit {
   public callState$ = this.callStateSubject.asObservable();
   public callHistory$ = this.callHistorySubject.asObservable();
   public incomingCall$ = this.incomingCallSubject.asObservable();
+  username: any;
 
   public getLocalStream(): MediaStream | null {
     return this.localStream;
   }
 
-  constructor(private chatService: ChatService) {
+  constructor(private chatService: ChatService, private userService: UserService) {
     this.loadCallHistory();
     // Add sample data if no history exists (for testing)
     this.addSampleCallHistoryIfEmpty();
@@ -219,30 +221,42 @@ export class CallService implements AfterViewInit {
     console.log("Connecting CallHub, cookies:", document.cookie); // confirm cookie is present
 
 
-    this.callHub = new signalR.HubConnectionBuilder()
-      .withUrl(environment.callHubUrl, {
-        accessTokenFactory: () => localStorage.getItem('token') || ''
-      })
-      .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
+
+this.userService.currentUserSubject.subscribe(user => {
+  if (!user) return;
+ console.log("User in call service", user);
+  const userId = user.userId; // or user.userId depending on your model
+  this.username = user.username;
+
+  this.callHub = new signalR.HubConnectionBuilder()
+    .withUrl(`${environment.callHubUrl}?userId=${userId}`, {
+      accessTokenFactory: () => localStorage.getItem('token') || ''
+    })
+    .withAutomaticReconnect()
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+  this.callHub.start()
+    .then(() => console.log('CallHub connected'))
+    .catch(err => console.error('Error connecting CallHub:', err));
+});
 
 
     // Server → client events
-    this.callHub.on('IncomingCall', (p: any) => { console.log('IncomingCall', p); });
-    this.callHub.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
-    this.callHub.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
-    this.callHub.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
-    this.callHub.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
-    this.callHub.on('CallDeclined', (p: any) => this.chatService.callDeclined$.next(p));
-    this.callHub.on('CallEnded', (p: any) => this.chatService.callEnded$.next(p));
+    this.callHub?.on('IncomingCall', (p: any) => { console.log('IncomingCall', p); });
+    this.callHub?.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
+    this.callHub?.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
+    this.callHub?.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
+    this.callHub?.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
+    this.callHub?.on('CallDeclined', (p: any) => this.chatService.callDeclined$.next(p));
+    this.callHub?.on('CallEnded', (p: any) => this.chatService.callEnded$.next(p));
 
     console.log('CallHub connecting to', environment.callHubUrl);
-    await this.callHub.start();
+    await this.callHub?.start();
     console.log('CallHub connected');
 
     try {
-      const me = await this.callHub.invoke<string | null>('WhoAmI');
+      const me = await this.callHub?.invoke<string | null>('WhoAmI');
       console.log('WhoAmI (callHub):', me);
       this.selfUserId = me ? Number(me) : undefined;
     } catch (e) {
@@ -252,7 +266,7 @@ export class CallService implements AfterViewInit {
     // Flush any queued ICE candidates
     for (const [pid, list] of this.pendingIce.entries()) {
       for (const dto of list) {
-        await this.callHub.invoke('SendCallCandidate', Number(pid), dto);
+        await this.callHub?.invoke('SendCallCandidate', Number(pid), dto);
       }
     }
     this.pendingIce.clear();
