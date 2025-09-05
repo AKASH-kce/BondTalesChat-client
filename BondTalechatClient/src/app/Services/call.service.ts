@@ -166,111 +166,129 @@ export class CallService implements AfterViewInit {
     }
   }
   // Ensure dedicated CallHub connection exists (JWT passed as access_token)
-  // private async ensureCallHub(): Promise<void> {
-  //   if (this.callHub) return;
-  //   console.log("Connecting CallHub, cookies:", document.cookie);
+  public async ensureCallHub(): Promise<void> {
+    if (this.callHub) return;
+    console.log("Connecting CallHub, cookies:", document.cookie);
+    this.callHub = new signalR.HubConnectionBuilder()
+      .withUrl(environment.callHubUrl, {
+        transport: signalR.HttpTransportType.WebSockets,
+        withCredentials: true,
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+    this.userService.currentUserSubject.subscribe(user => {
+      if (!user) return;
+      console.log("User in call service", user);
+      const userId = user.userId; // or user.userId depending on your model
+      this.username = user.username;
+
+      this.callHub = new signalR.HubConnectionBuilder()
+        .withUrl(`${environment.callHubUrl}?userId=${userId}`, {
+          accessTokenFactory: () => localStorage.getItem('token') || ''
+        })
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+      this.callHub.start()
+        .then(() => console.log('CallHub connected'))
+        .catch(err => console.error('Error connecting CallHub:', err));
+    });
+    await this.callHub.start();
+    console.log('CallHub connected');
+    // Server → client events mirror ChatService; keep both for compatibility
+    this.callHub.on('IncomingCall', (p: any) => {
+      console.log('IncomingCall', p);
+      // cache callId so we can answer via AnswerCall
+      try { this.callId = p?.callId ?? this.callId; } catch { }
+      this.incomingCallSubject.next(p);
+    });
+    this.callHub.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
+    this.callHub.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
+    this.callHub.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
+    this.callHub.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
+    this.callHub.on('CallDeclined', (p: any) => this.chatService.callDeclined$.next(p));
+    this.callHub.on('CallEnded', (p: any) => this.chatService.callEnded$.next(p));
+
+    console.log('CallHub connecting to', environment.callHubUrl);
+    await this.callHub.start();
+    console.log('CallHub connected');
+    try {
+      const me = await this.callHub.invoke<string | null>('WhoAmI');
+      console.log('WhoAmI (callHub):', me);
+      if (me !== null && me !== undefined) {
+        const parsed = Number(me);
+        this.selfUserId = Number.isNaN(parsed) ? undefined : parsed;
+      }
+    } catch { }
+
+    // Flush any queued ICE candidates once connected
+    try {
+      for (const [pid, list] of this.pendingIce.entries()) {
+        for (const dto of list) {
+          await this.callHub.invoke('SendCallCandidate', Number(pid), dto);
+        }
+      }
+      this.pendingIce.clear();
+    } catch (e) {
+      console.warn('Failed flushing queued ICE', e);
+    }
+  }
+  //   public async ensureCallHub(): Promise<void> {
+  //     console.log("Connecting CallHub, cookies:", document.cookie); // confirm cookie is present
+
+
+
+  // this.userService.currentUserSubject.subscribe(user => {
+  //   if (!user) return;
+  //  console.log("User in call service", user);
+  //   const userId = user.userId; // or user.userId depending on your model
+  //   this.username = user.username;
+
   //   this.callHub = new signalR.HubConnectionBuilder()
-  //     .withUrl(environment.callHubUrl, {
-  //       transport: signalR.HttpTransportType.WebSockets,
-  //       withCredentials: true,
+  //     .withUrl(`${environment.callHubUrl}?userId=${userId}`, {
+  //       accessTokenFactory: () => localStorage.getItem('token') || ''
   //     })
   //     .withAutomaticReconnect()
   //     .configureLogging(signalR.LogLevel.Information)
   //     .build();
-  //   await this.callHub.start();
-  //   console.log('CallHub connected');
-  //   // Server → client events mirror ChatService; keep both for compatibility
-  //   this.callHub.on('IncomingCall', (p: any) => {
-  //     console.log('IncomingCall', p);
-  //     // cache callId so we can answer via AnswerCall
-  //     try { this.callId = p?.callId ?? this.callId; } catch { }
-  //     this.incomingCallSubject.next(p);
-  //   });
-  //   this.callHub.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
-  //   this.callHub.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
-  //   this.callHub.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
-  //   this.callHub.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
-  //   this.callHub.on('CallDeclined', (p: any) => this.chatService.callDeclined$.next(p));
-  //   this.callHub.on('CallEnded', (p: any) => this.chatService.callEnded$.next(p));
 
-  //   console.log('CallHub connecting to', environment.callHubUrl);
-  //   await this.callHub.start();
-  //   console.log('CallHub connected');
-  //   try {
-  //     const me = await this.callHub.invoke<string | null>('WhoAmI');
-  //     console.log('WhoAmI (callHub):', me);
-  //     if (me !== null && me !== undefined) {
-  //       const parsed = Number(me);
-  //       this.selfUserId = Number.isNaN(parsed) ? undefined : parsed;
+  //   this.callHub.start()
+  //     .then(() => console.log('CallHub connected'))
+  //     .catch(err => console.error('Error connecting CallHub:', err));
+  // });
+
+
+  //     // Server → client events
+  //     this.callHub?.on('IncomingCall', (p: any) => { console.log('IncomingCall', p); });
+  //     this.callHub?.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
+  //     this.callHub?.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
+  //     this.callHub?.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
+  //     this.callHub?.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
+  //     this.callHub?.on('CallDeclined', (p: any) => this.chatService.callDeclined$.next(p));
+  //     this.callHub?.on('CallEnded', (p: any) => this.chatService.callEnded$.next(p));
+
+  //     console.log('CallHub connecting to', environment.callHubUrl);
+  //     await this.callHub?.start();
+  //     console.log('CallHub connected');
+
+  //     try {
+  //       const me = await this.callHub?.invoke<string | null>('WhoAmI');
+  //       console.log('WhoAmI (callHub):', me);
+  //       this.selfUserId = me ? Number(me) : undefined;
+  //     } catch (e) {
+  //       console.error('WhoAmI failed:', e);
   //     }
-  //   } catch { }
 
-  //   // Flush any queued ICE candidates once connected
-  //   try {
+  //     // Flush any queued ICE candidates
   //     for (const [pid, list] of this.pendingIce.entries()) {
   //       for (const dto of list) {
-  //         await this.callHub.invoke('SendCallCandidate', Number(pid), dto);
+  //         await this.callHub?.invoke('SendCallCandidate', Number(pid), dto);
   //       }
   //     }
   //     this.pendingIce.clear();
-  //   } catch (e) {
-  //     console.warn('Failed flushing queued ICE', e);
   //   }
-  // }
-  public async ensureCallHub(): Promise<void> {
-    console.log("Connecting CallHub, cookies:", document.cookie); // confirm cookie is present
-
-
-
-this.userService.currentUserSubject.subscribe(user => {
-  if (!user) return;
- console.log("User in call service", user);
-  const userId = user.userId; // or user.userId depending on your model
-  this.username = user.username;
-
-  this.callHub = new signalR.HubConnectionBuilder()
-    .withUrl(`${environment.callHubUrl}?userId=${userId}`, {
-      accessTokenFactory: () => localStorage.getItem('token') || ''
-    })
-    .withAutomaticReconnect()
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-  this.callHub.start()
-    .then(() => console.log('CallHub connected'))
-    .catch(err => console.error('Error connecting CallHub:', err));
-});
-
-
-    // Server → client events
-    this.callHub?.on('IncomingCall', (p: any) => { console.log('IncomingCall', p); });
-    this.callHub?.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
-    this.callHub?.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
-    this.callHub?.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
-    this.callHub?.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
-    this.callHub?.on('CallDeclined', (p: any) => this.chatService.callDeclined$.next(p));
-    this.callHub?.on('CallEnded', (p: any) => this.chatService.callEnded$.next(p));
-
-    console.log('CallHub connecting to', environment.callHubUrl);
-    await this.callHub?.start();
-    console.log('CallHub connected');
-
-    try {
-      const me = await this.callHub?.invoke<string | null>('WhoAmI');
-      console.log('WhoAmI (callHub):', me);
-      this.selfUserId = me ? Number(me) : undefined;
-    } catch (e) {
-      console.error('WhoAmI failed:', e);
-    }
-
-    // Flush any queued ICE candidates
-    for (const [pid, list] of this.pendingIce.entries()) {
-      for (const dto of list) {
-        await this.callHub?.invoke('SendCallCandidate', Number(pid), dto);
-      }
-    }
-    this.pendingIce.clear();
-  }
 
   // Call this right after successful login (after token is saved)
   public async connectCallHub(): Promise<void> {
