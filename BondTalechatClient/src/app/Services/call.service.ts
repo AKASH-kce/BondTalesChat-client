@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
 import { MatDialog } from '@angular/material/dialog';
 import { VedioCallPopupComponentComponent } from '../popupComponents/vedio-call-popup-component/vedio-call-popup-component.component';
+import { IncomingCallPopupComponent } from '../popupComponents/incoming-call-popup/incoming-call-popup.component';
 
 export interface CallState {
   isInCall: boolean;
@@ -215,6 +216,9 @@ export class CallService implements AfterViewInit {
       // cache callId so we can answer via AnswerCall
       try { this.callId = p?.callId ?? this.callId; } catch { }
       this.incomingCallSubject.next(p);
+      
+      // Show incoming call popup automatically
+      this.showIncomingCallPopup(p);
     });
     this.callHub.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
     this.callHub.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
@@ -1019,5 +1023,47 @@ export class CallService implements AfterViewInit {
       case 'poor': return '#f44336';
       default: return '#9e9e9e';
     }
+  }
+
+  // Show incoming call popup
+  private showIncomingCallPopup(callData: any): void {
+    console.log('Showing incoming call popup for:', callData);
+    
+    const dialogRef = this.dialog.open(IncomingCallPopupComponent, {
+      data: callData,
+      disableClose: true,
+      panelClass: 'incoming-call-dialog',
+      width: '400px',
+      height: 'auto'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Incoming call popup closed with result:', result);
+      
+      if (result?.action === 'accepted') {
+        // The call was accepted, now open the appropriate call popup
+        this.openCallPopup(result.callData);
+      } else if (result?.action === 'declined') {
+        // Call was declined, clear the incoming call state
+        this.incomingCallSubject.next(null);
+      }
+    });
+  }
+
+  // Open the appropriate call popup (video or audio)
+  private openCallPopup(callData: any): void {
+    console.log('Opening call popup for:', callData);
+    
+    // Open the video call popup component
+    this.dialog.open(VedioCallPopupComponentComponent, {
+      data: {
+        ...callData,
+        isIncoming: true
+      },
+      disableClose: true,
+      panelClass: 'draggable-dialog',
+      width: '800px',
+      height: '600px'
+    });
   }
 }

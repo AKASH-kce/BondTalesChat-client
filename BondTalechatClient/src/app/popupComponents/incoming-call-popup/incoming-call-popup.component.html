@@ -1,0 +1,42 @@
+<div class="incoming-call-popup">
+  <div class="call-header">
+    <div class="caller-info">
+      <div class="caller-avatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <div class="caller-details">
+        <h3 class="caller-name">{{ callData?.participantName || 'Unknown Caller' }}</h3>
+        <p class="call-type">
+          <i class="fa-solid" [ngClass]="getCallTypeIcon()"></i>
+          {{ getCallTypeText() }}
+        </p>
+      </div>
+    </div>
+    <div class="call-duration" *ngIf="callDuration > 0">
+      {{ formatDuration(callDuration) }}
+    </div>
+  </div>
+
+  <div class="call-actions">
+    <button 
+      class="decline-btn" 
+      (click)="declineCall()" 
+      [disabled]="isProcessing"
+      title="Decline Call">
+      <i class="fa-solid fa-phone-slash"></i>
+    </button>
+    
+    <button 
+      class="accept-btn" 
+      (click)="acceptCall()" 
+      [disabled]="isProcessing"
+      title="Accept Call">
+      <i class="fa-solid fa-phone"></i>
+    </button>
+  </div>
+
+  <div class="call-status" *ngIf="isProcessing">
+    <div class="loading-spinner"></div>
+    <p>Processing...</p>
+  </div>
+</div>

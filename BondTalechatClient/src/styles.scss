@@ -80,3 +80,15 @@
   scrollbar-width: thin;
   scrollbar-color: var(--accent-text-color) var(--primary-deep);
 }
+
+/* Incoming Call Dialog Styles */
+.incoming-call-dialog .mat-mdc-dialog-container {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.incoming-call-dialog .mat-mdc-dialog-surface {
+  background: transparent !important;
+  box-shadow: none !important;
+}
