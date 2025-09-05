@@ -9,7 +9,7 @@
     "build:dev": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve": "npx http-server dist/bond-talechat-client -p $PORT -c-1 --fallback index.html",
+    "serve": "npx http-server dist/bond-talechat-client/browser -p $PORT -c-1 --fallback index.html",
     "verify": "node verify-deployment.js"
   },
   "private": true,
