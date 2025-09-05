@@ -67,7 +67,7 @@ export class CallService {
   private callHistory: CallHistory[] = [];
   private callHub?: signalR.HubConnection;
   private callId?: string;
-  private pendingOffers: Map<string, { type: string; sdp: string } > = new Map();
+  private pendingOffers: Map<string, { type: string; sdp: string }> = new Map();
   private pendingIce: Map<string, Array<{ candidate: string; sdpMid: string | null; sdpMLineIndex: number | null }>> = new Map();
   private selfUserId?: number;
   private currentCallParticipant?: { id: string; name: string; avatar?: string };
@@ -85,7 +85,7 @@ export class CallService {
     // Add sample data if no history exists (for testing)
     this.addSampleCallHistoryIfEmpty();
     // Ensure we are connected to CallHub early so we don't miss server events
-    this.ensureCallHub().catch(() => {});
+    this.ensureCallHub().catch(() => { });
     // Wire SignalR call signaling to WebRTC peer connections
     this.chatService.incomingCall$.subscribe((payload: any) => {
       // Surface to UI for accept/decline
@@ -148,13 +148,22 @@ export class CallService {
       }
     });
   }
-
+  private getToken(): string {
+    try {
+      return localStorage.getItem('token') || '';
+    } catch {
+      return '';
+    }
+  }
   // Ensure dedicated CallHub connection exists (JWT passed as access_token)
   private async ensureCallHub(): Promise<void> {
+    console.log('Ensuring CallHub connection.................................', this.getToken());
     if (this.callHub) return;
     this.callHub = new signalR.HubConnectionBuilder()
       .withUrl(environment.callHubUrl, {
-        transport: signalR.HttpTransportType.WebSockets
+        transport: signalR.HttpTransportType.WebSockets,
+        accessTokenFactory: () => this.getToken(),
+        withCredentials: true,
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
@@ -164,10 +173,10 @@ export class CallService {
     this.callHub.on('IncomingCall', (p: any) => {
       console.log('IncomingCall', p);
       // cache callId so we can answer via AnswerCall
-      try { this.callId = p?.callId ?? this.callId; } catch {}
+      try { this.callId = p?.callId ?? this.callId; } catch { }
       this.incomingCallSubject.next(p);
     });
-    this.callHub.on('CallOffer',  (p: any) => this.chatService.callOffer$.next(p));
+    this.callHub.on('CallOffer', (p: any) => this.chatService.callOffer$.next(p));
     this.callHub.on('CallAnswer', (p: any) => this.chatService.callAnswer$.next(p));
     this.callHub.on('CallCandidate', (p: any) => this.chatService.callCandidate$.next(p));
     this.callHub.on('CallAccepted', (p: any) => this.chatService.callAccepted$.next(p));
@@ -184,7 +193,7 @@ export class CallService {
         const parsed = Number(me);
         this.selfUserId = Number.isNaN(parsed) ? undefined : parsed;
       }
-    } catch {}
+    } catch { }
 
     // Flush any queued ICE candidates once connected
     try {
@@ -203,7 +212,7 @@ export class CallService {
   public async connectCallHub(): Promise<void> {
     if (this.callHub && this.callHub.state === signalR.HubConnectionState.Connected) return;
     // Reset existing
-    if (this.callHub) { try { await this.callHub.stop(); } catch {} this.callHub = undefined; }
+    if (this.callHub) { try { await this.callHub.stop(); } catch { } this.callHub = undefined; }
     await this.ensureCallHub();
   }
 
@@ -252,7 +261,7 @@ export class CallService {
 
     // Ensure any previous stream is released to avoid NotReadableError when switching
     if (this.localStream) {
-      try { this.localStream.getTracks().forEach(t => t.stop()); } catch {}
+      try { this.localStream.getTracks().forEach(t => t.stop()); } catch { }
       this.localStream = null;
     }
 
@@ -288,7 +297,7 @@ export class CallService {
           audioTracks: audioTracks.map(t => ({ id: t.id, enabled: t.enabled, muted: (t as any).muted })),
           videoTracks: videoTracks.map(t => ({ id: t.id, enabled: t.enabled, readyState: t.readyState }))
         });
-      } catch {}
+      } catch { }
       const startTime = new Date();
       console.log('Setting call state - start time:', startTime);
       this.updateCallState({
@@ -313,7 +322,7 @@ export class CallService {
             audioTracks: audioTracks.map(t => ({ id: t.id, enabled: t.enabled, muted: (t as any).muted })),
             videoTracks: videoTracks.map(t => ({ id: t.id, enabled: t.enabled, readyState: t.readyState }))
           });
-        } catch {}
+        } catch { }
         this.updateCallState({
           isInCall: true,
           callType: 'audio',
@@ -343,7 +352,7 @@ export class CallService {
       name: participantName || 'Unknown',
       avatar: participantAvatar
     };
-    
+
     console.log('Stored participant info for call:', this.currentCallParticipant);
 
     const effectiveType = await this.prepareLocalMedia(callType, participantId);
@@ -359,9 +368,9 @@ export class CallService {
       console.warn('Failed to create server call session (InitiateCall)', e);
       // Add failed call to history
       this.addFailedCall(
-        participantId, 
-        participantName || 'Unknown', 
-        effectiveType, 
+        participantId,
+        participantName || 'Unknown',
+        effectiveType,
         'Server connection failed'
       );
       throw e; // Re-throw to let the UI handle the error
@@ -375,9 +384,9 @@ export class CallService {
     } else {
       // Add failed call to history
       this.addFailedCall(
-        participantId, 
-        participantName || 'Unknown', 
-        effectiveType, 
+        participantId,
+        participantName || 'Unknown',
+        effectiveType,
         'Call hub not connected'
       );
       throw new Error('CALL_HUB_NOT_CONNECTED');
@@ -391,7 +400,7 @@ export class CallService {
       videoTracks.forEach(track => {
         track.enabled = !track.enabled;
       });
-      
+
       this.updateCallState({
         isVideoEnabled: !this.callStateSubject.value.isVideoEnabled
       });
@@ -405,7 +414,7 @@ export class CallService {
       audioTracks.forEach(track => {
         track.enabled = !track.enabled;
       });
-      
+
       this.updateCallState({
         isAudioEnabled: !this.callStateSubject.value.isAudioEnabled,
         isMuted: !this.callStateSubject.value.isAudioEnabled
@@ -471,13 +480,13 @@ export class CallService {
   endCall(): void {
     this.stopCallTimer();
     this.cleanup();
-    
+
     // Store call data before clearing the state
     const currentCallState = this.callStateSubject.value;
     const callStartTime = currentCallState.callStartTime;
     const callDuration = currentCallState.callDuration;
     const callType = currentCallState.callType;
-    
+
     this.updateCallState({
       isInCall: false,
       isVideoEnabled: false,
@@ -498,7 +507,7 @@ export class CallService {
         duration: callDuration,
         startTime: callStartTime
       });
-      
+
       this.addToCallHistory({
         id: this.generateCallId(),
         participantId: this.currentCallParticipant.id,
@@ -526,7 +535,7 @@ export class CallService {
   cancelCall(): void {
     this.stopCallTimer();
     this.cleanup();
-    
+
     this.updateCallState({
       isInCall: false,
       isVideoEnabled: false,
@@ -595,8 +604,8 @@ export class CallService {
       if (callId && this.callHub && this.callHub.state === signalR.HubConnectionState.Connected) {
         await this.callHub.invoke('DeclineCall', callId);
       }
-    } catch {}
-    
+    } catch { }
+
     // Add declined call to history
     this.addToCallHistory({
       id: this.generateCallId(),
@@ -609,7 +618,7 @@ export class CallService {
       status: 'declined',
       isIncoming: true
     });
-    
+
     this.incomingCallSubject.next(null);
   }
 
@@ -758,7 +767,7 @@ export class CallService {
   private getVideoSender(): RTCRtpSender | null {
     for (const peerConnection of this.peerConnections.values()) {
       const senders = peerConnection.getSenders();
-      const videoSender = senders.find(sender => 
+      const videoSender = senders.find(sender =>
         sender.track && sender.track.kind === 'video'
       );
       if (videoSender) return videoSender;
@@ -820,7 +829,7 @@ export class CallService {
     const historyJson = JSON.stringify(this.callHistory);
     console.log('Saving call history to localStorage:', historyJson);
     localStorage.setItem('callHistory', historyJson);
-    
+
     // Verify it was saved
     const saved = localStorage.getItem('callHistory');
     console.log('Verified saved call history:', saved);
@@ -900,7 +909,7 @@ export class CallService {
       id: call.participantId,
       name: call.participantName
     };
-    
+
     // Initialize the call with the same type
     return this.initializeCall(call.callType, call.participantId, call.participantName);
   }
@@ -908,7 +917,7 @@ export class CallService {
   // Test method to simulate different call scenarios
   simulateCallScenarios(): void {
     console.log('Simulating call scenarios for testing...');
-    
+
     // Simulate a completed call
     this.addToCallHistory({
       id: this.generateCallId(),
