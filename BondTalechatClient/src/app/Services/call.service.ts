@@ -44,7 +44,7 @@ export interface CallHistory {
 @Injectable({
   providedIn: 'root'
 })
-export class CallService implements AfterViewInit{
+export class CallService implements AfterViewInit {
   private callStateSubject = new BehaviorSubject<CallState>({
     isInCall: false,
     isVideoEnabled: false,
@@ -149,13 +149,13 @@ export class CallService implements AfterViewInit{
     });
   }
 
-    
+
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.ensureCallHub().catch((e) => { console.error('Failed to connect CallHub after view init', e);});
+      this.ensureCallHub().catch((e) => { console.error('Failed to connect CallHub after view init', e); });
     }, 10000); // 10 seconds delay
   }
-  
+
   private getToken(): string {
     try {
       return localStorage.getItem('token') || '';
@@ -217,16 +217,16 @@ export class CallService implements AfterViewInit{
   // }
   public async ensureCallHub(): Promise<void> {
     console.log("Connecting CallHub, cookies:", document.cookie); // confirm cookie is present
-    
+
 
     this.callHub = new signalR.HubConnectionBuilder()
       .withUrl(environment.callHubUrl, {
-        transport: signalR.HttpTransportType.WebSockets,
-        withCredentials: true, // important for cookie auth
+        accessTokenFactory: () => localStorage.getItem('token') || ''
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
+
 
     // Server → client events
     this.callHub.on('IncomingCall', (p: any) => { console.log('IncomingCall', p); });
