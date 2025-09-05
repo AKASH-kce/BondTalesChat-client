@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { ChatService } from '../../Services/chat.serivce';
+import { ChatService } from '../../Services/chat.Service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

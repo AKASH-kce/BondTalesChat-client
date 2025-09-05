@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChatService } from '../../Services/chat.serivce';
+import { ChatService } from '../../Services/chat.Service';
 import { Component, OnInit } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { FormsModule } from '@angular/forms';

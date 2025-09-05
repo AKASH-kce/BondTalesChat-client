@@ -4,7 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
-import { ChatService } from '../../Services/chat.serivce';
+import { ChatService } from '../../Services/chat.Service';
 import { IUserDetial, IUserMessage } from '../../Models/user.detials.model';
 import { UserService } from '../../Services/user.service';
 import { currentUserDetialsService } from '../../Services/current-user-detials-service';

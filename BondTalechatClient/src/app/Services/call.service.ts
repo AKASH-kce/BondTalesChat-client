@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { ChatService } from './chat.serivce';
+import { ChatService } from './chat.Service';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
 

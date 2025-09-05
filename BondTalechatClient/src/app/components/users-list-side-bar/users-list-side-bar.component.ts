@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../Services/user.service';
-import { ChatService } from '../../Services/chat.serivce';
+import { ChatService } from '../../Services/chat.Service';
 import { currentUserDetialsService } from '../../Services/current-user-detials-service';
 import { IConversation } from '../../Models/user.detials.model';
 import { AddUserPopupComponent } from '../../popupComponents/add-user-popup.component/add-user-popup.component';
