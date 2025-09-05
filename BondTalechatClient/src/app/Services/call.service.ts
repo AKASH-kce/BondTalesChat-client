@@ -152,21 +152,21 @@ export class CallService implements AfterViewInit {
       }
     });
 
-    (async () => { try { await this.callService.connectCallHub(); } catch {} })();
-    this.callService.incomingCall$.subscribe(payload => {
-      console.log('Incoming call:', payload);
-      if (!payload) return;
-      const accept = confirm(`Incoming ${payload.callType} call from ${payload.participantName ?? payload.participantId}. Accept?`);
-      if (!accept) {
-        this.callService.declineCall(payload.callId);
-        return;
-      }
-      this.dialog.open(VedioCallPopupComponentComponent, {
-        data: payload,
-        disableClose: true,
-        panelClass: 'draggable-dialog'
-      });
-    });
+    // (async () => { try { await this.callService.connectCallHub(); } catch {} })();
+    // this.callService.incomingCall$.subscribe(payload => {
+    //   console.log('Incoming call:', payload);
+    //   if (!payload) return;
+    //   const accept = confirm(`Incoming ${payload.callType} call from ${payload.participantName ?? payload.participantId}. Accept?`);
+    //   if (!accept) {
+    //     this.callService.declineCall(payload.callId);
+    //     return;
+    //   }
+    //   this.dialog.open(VedioCallPopupComponentComponent, {
+    //     data: payload,
+    //     disableClose: true,
+    //     panelClass: 'draggable-dialog'
+    //   });
+    // });
   }
 
 
