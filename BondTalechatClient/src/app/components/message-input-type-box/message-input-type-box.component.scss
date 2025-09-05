@@ -11,6 +11,7 @@ img{
     justify-content: center;
     align-items: center;
     background-color: var(--chat-header-color);
+    padding: 10px;
 }
 
 .message-input-area{
@@ -22,6 +23,8 @@ img{
     border-radius: 10px;
     padding: 10px;
     border: 1px solid var(--primary-soft);
+    width: 100%;
+    max-width: 800px;
 }
 
 .input-field-elements{
@@ -34,11 +37,12 @@ img{
 input{
     border: none;
     outline: none;
-    width: 700px;
+    width: 100%;
     display: flex;
     align-items: center;
     color: black;
     padding: 0px 15px 0px 0px;
+    font-size: 16px; /* Prevent zoom on mobile */
 }
 
 .send-image{
@@ -49,4 +53,65 @@ input{
 i{
     color: black;
     cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .message-input-main {
+        padding: 8px;
+    }
+
+    .message-input-area {
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+    .input-field-elements {
+        gap: 8px;
+    }
+
+    input {
+        padding: 0px 10px 0px 0px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    i {
+        font-size: 16px;
+        padding: 8px;
+        min-width: 32px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .message-input-main {
+        padding: 5px;
+    }
+
+    .message-input-area {
+        padding: 6px;
+        border-radius: 6px;
+    }
+
+    .input-field-elements {
+        gap: 6px;
+    }
+
+    i {
+        font-size: 14px;
+        padding: 6px;
+        min-width: 28px;
+        min-height: 28px;
+    }
 }

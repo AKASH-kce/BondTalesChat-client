@@ -1,7 +1,27 @@
 <div class="container">
-  <div class="box1"><app-left-sidebar/></div>
-  <div class="box2"><app-navbar-top/></div>
-  <div class="box3"><app-users-list-side-bar/></div>
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" [class.active]="showMobileOverlay" (click)="closeMobileViews()"></div>
+  
+  <!-- Left Sidebar -->
+  <div class="box1" [class.mobile-sidebar]="isMobile" [class.active]="showLeftSidebar">
+    <app-left-sidebar/>
+  </div>
+  
+  <!-- Top Navigation -->
+  <div class="box2">
+    <app-navbar-top (toggleLeftSidebar)="toggleLeftSidebar()" (toggleUserList)="toggleUserList()" (toggleChatView)="toggleChatView()"/>
+  </div>
+  
+  <!-- User List Sidebar -->
+  <div class="box3" [class.mobile-user-list]="isMobile" [class.active]="showUserList">
+    <app-users-list-side-bar (conversationSelected)="onConversationSelected()"/>
+  </div>
+  
+  <!-- Desktop Resizer -->
   <div class="resizer" id="dragMe"></div>
-  <div class="box4"><app-chat-area/></div>
+  
+  <!-- Chat Area -->
+  <div class="box4" [class.mobile-chat-view]="isMobile" [class.active]="showChatView">
+    <app-chat-area/>
+  </div>
 </div>

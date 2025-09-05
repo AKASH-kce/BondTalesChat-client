@@ -52,13 +52,24 @@ export class ChatHeaderComponent implements OnInit {
         return;
       }
 
-      this.callDialogRef = this.dialogRef.open(CallPopupComponentComponent, {
-        data: {
-          userName: this.currentChatUserName,
-          profileImage: this.ProfileImageURl,
-          event: event
-        }
-      });
+             this.callDialogRef = this.dialogRef.open(CallPopupComponentComponent, {
+         data: {
+           userName: this.currentChatUserName,
+           profileImage: this.ProfileImageURl,
+           event: event
+         },
+         hasBackdrop: false, // Remove backdrop to eliminate any interference
+         panelClass: 'call-selection-dialog',
+         disableClose: true, // Prevent closing by clicking outside
+         autoFocus: true,
+         restoreFocus: true,
+         position: {
+           top: (event.clientY + 10) + 'px',
+           left: (event.clientX - 100) + 'px'
+         },
+         width: '200px',
+         height: 'auto'
+       });
 
       setTimeout(() => {
         this.callDailogpopupOpen = true;
@@ -69,32 +80,33 @@ export class ChatHeaderComponent implements OnInit {
       }
 
       this.callDialogRef.afterClosed().subscribe((result: CallDialogResult | undefined) => {
+        console.log('Call selection dialog closed with result:', result);
+        console.log('Result type:', typeof result);
+        console.log('Result action:', result?.action);
+        
         const action = result?.action;
         if (action) {
-          console.log('Call action:', action);
-          if (action === 'audioCall') {
-            console.log('Initiating audio call...');
-            console.log('User ID:', this.useId);
-            this.dialogRef.open(AudioCallPopupComponentComponent, {
-              data: {
-                userId: this.useId,
-                userName: this.currentChatUserName,
-                profileImage: this.ProfileImageURl
-              },
-              panelClass: 'draggable-dialog'
-            });
-          }
-          if (action === 'videoCall') {
-            console.log('Initiating video call...');
-            console.log('User ID:', this.useId);
-            this.dialogRef.open(VedioCallPopupComponentComponent, {
-              data: {
-                userId: this.useId,
-                userName: this.currentChatUserName,
-                profileImage: this.ProfileImageURl
-              },
-              panelClass: 'draggable-dialog'
-            });
+          console.log('Call action selected:', action);
+          
+          // Add a small delay to ensure the selection dialog is fully closed
+          setTimeout(() => {
+            if (action === 'audioCall') {
+              console.log('Initiating audio call...');
+              console.log('User ID:', this.useId);
+              this.openAudioCallDialog();
+            }
+            
+            if (action === 'videoCall') {
+              console.log('Initiating video call...');
+              console.log('User ID:', this.useId);
+              this.openVideoCallDialog();
+            }
+          }, 100); // 100ms delay
+        } else {
+          console.warn('No action received from call selection dialog. Result:', result);
+          // If no action was received, it might have been cancelled
+          if (result && (result as any).action === 'cancelled') {
+            console.log('Call selection was cancelled');
           }
         }
         this.callDailogpopupOpen = false;
@@ -108,6 +120,202 @@ export class ChatHeaderComponent implements OnInit {
       console.error('Error accessing media devices.', error);
       alert('Error accessing media devices. Please ensure you have a microphone and camera connected, and that you have granted permission to access them.');
     });
+  }
+
+  private openAudioCallDialog(): void {
+    try {
+      console.log('Opening audio call dialog...');
+      
+      // First, try to close any existing dialogs
+      this.dialogRef.closeAll();
+      
+      // Wait a moment for cleanup
+      setTimeout(() => {
+                 const audioDialogRef = this.dialogRef.open(AudioCallPopupComponentComponent, {
+           data: {
+             userId: this.useId,
+             userName: this.currentChatUserName,
+             profileImage: this.ProfileImageURl
+           },
+           panelClass: 'draggable-dialog',
+           hasBackdrop: true,
+           backdropClass: 'call-popup-backdrop',
+           width: '400px',
+           height: '500px',
+           disableClose: false,
+           autoFocus: true,
+           restoreFocus: true,
+           position: {
+             top: '20px',
+             right: '20px'
+           }
+         });
+        
+        // Add event listeners for debugging
+        audioDialogRef.afterOpened().subscribe(() => {
+          console.log('Audio call dialog opened successfully');
+          // Force focus to ensure visibility
+          setTimeout(() => {
+            const dialogElement = document.querySelector('.draggable-dialog .mat-mdc-dialog-container');
+            if (dialogElement) {
+              (dialogElement as HTMLElement).focus();
+              console.log('Audio dialog focused');
+            }
+          }, 100);
+        });
+        
+        audioDialogRef.afterClosed().subscribe((result) => {
+          console.log('Audio call dialog closed with result:', result);
+        });
+        
+        // Fallback: If dialog doesn't open after 500ms, try again
+        setTimeout(() => {
+          const existingDialog = document.querySelector('.draggable-dialog');
+          if (!existingDialog) {
+            console.warn('Dialog not visible, attempting fallback...');
+            this.openAudioCallDialogFallback();
+          }
+        }, 500);
+        
+      }, 50);
+      
+    } catch (error) {
+      console.error('Error opening audio call dialog:', error);
+      this.openAudioCallDialogFallback();
+    }
+  }
+
+  private openAudioCallDialogFallback(): void {
+    try {
+      console.log('Opening audio call dialog (fallback)...');
+             const audioDialogRef = this.dialogRef.open(AudioCallPopupComponentComponent, {
+         data: {
+           userId: this.useId,
+           userName: this.currentChatUserName,
+           profileImage: this.ProfileImageURl
+         },
+         panelClass: 'draggable-dialog',
+         hasBackdrop: true,
+         backdropClass: 'call-popup-backdrop',
+         width: '400px',
+         height: '500px',
+         disableClose: false,
+         autoFocus: false,
+         restoreFocus: false,
+         position: {
+           top: '20px',
+           right: '20px'
+         }
+       });
+      
+      audioDialogRef.afterOpened().subscribe(() => {
+        console.log('Audio call dialog opened successfully (fallback)');
+      });
+      
+    } catch (error) {
+      console.error('Error opening audio call dialog (fallback):', error);
+      alert('Failed to open audio call dialog. Please try again.');
+    }
+  }
+
+  private openVideoCallDialog(): void {
+    try {
+      console.log('Opening video call dialog...');
+      
+      // First, try to close any existing dialogs
+      this.dialogRef.closeAll();
+      
+      // Wait a moment for cleanup
+      setTimeout(() => {
+                 const videoDialogRef = this.dialogRef.open(VedioCallPopupComponentComponent, {
+           data: {
+             userId: this.useId,
+             participantId: this.useId,
+             participantName: this.currentChatUserName,
+             participantAvatar: this.ProfileImageURl,
+             callType: 'video'
+           },
+           panelClass: 'draggable-dialog',
+           hasBackdrop: true,
+           backdropClass: 'call-popup-backdrop',
+           width: '800px',
+           height: '600px',
+           disableClose: false,
+           autoFocus: true,
+           restoreFocus: true,
+           position: {
+             top: '20px',
+             right: '20px'
+           }
+         });
+        
+        // Add event listeners for debugging
+        videoDialogRef.afterOpened().subscribe(() => {
+          console.log('Video call dialog opened successfully');
+          // Force focus to ensure visibility
+          setTimeout(() => {
+            const dialogElement = document.querySelector('.draggable-dialog .mat-mdc-dialog-container');
+            if (dialogElement) {
+              (dialogElement as HTMLElement).focus();
+              console.log('Video dialog focused');
+            }
+          }, 100);
+        });
+        
+        videoDialogRef.afterClosed().subscribe((result) => {
+          console.log('Video call dialog closed with result:', result);
+        });
+        
+        // Fallback: If dialog doesn't open after 500ms, try again
+        setTimeout(() => {
+          const existingDialog = document.querySelector('.draggable-dialog');
+          if (!existingDialog) {
+            console.warn('Video dialog not visible, attempting fallback...');
+            this.openVideoCallDialogFallback();
+          }
+        }, 500);
+        
+      }, 50);
+      
+    } catch (error) {
+      console.error('Error opening video call dialog:', error);
+      this.openVideoCallDialogFallback();
+    }
+  }
+
+  private openVideoCallDialogFallback(): void {
+    try {
+      console.log('Opening video call dialog (fallback)...');
+             const videoDialogRef = this.dialogRef.open(VedioCallPopupComponentComponent, {
+         data: {
+           userId: this.useId,
+           participantId: this.useId,
+           participantName: this.currentChatUserName,
+           participantAvatar: this.ProfileImageURl,
+           callType: 'video'
+         },
+         panelClass: 'draggable-dialog',
+         hasBackdrop: true,
+         backdropClass: 'call-popup-backdrop',
+         width: '800px',
+         height: '600px',
+         disableClose: false,
+         autoFocus: false,
+         restoreFocus: false,
+         position: {
+           top: '20px',
+           right: '20px'
+         }
+       });
+      
+      videoDialogRef.afterOpened().subscribe(() => {
+        console.log('Video call dialog opened successfully (fallback)');
+      });
+      
+    } catch (error) {
+      console.error('Error opening video call dialog (fallback):', error);
+      alert('Failed to open video call dialog. Please try again.');
+    }
   }
 
 

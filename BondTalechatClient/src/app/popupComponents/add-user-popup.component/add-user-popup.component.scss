@@ -15,6 +15,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  z-index: var(--z-index-modal) !important;
 }
 
 /* Blur the background behind the dialog */

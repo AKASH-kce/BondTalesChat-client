@@ -3,10 +3,29 @@
   height: 100%;
   display: flex;
   justify-content: end;
-  // background-color: var(--primary-soft);
   background-color: var(--chat-area-color);
   gap: 20px;
   padding-right: 20px;
+}
+
+.mobile-nav-controls {
+  display: none;
+  align-items: center;
+  gap: 15px;
+  padding: 0 15px;
+
+  i {
+    font-size: 18px;
+    color: var(--accent-text-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
 }
 
 .general-options {
@@ -20,14 +39,17 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
 
+.search-container {
+  display: flex;
+  align-items: center;
 }
 
 .search-bar-elements {
   display: flex;
   justify-content: center;
   align-items: center;
-  // background-color: var(--primary-rich);
   background-color: white;
   border-radius: 10px;
   overflow: hidden;
@@ -41,7 +63,6 @@ img {
 }
 
 input {
-  // background-color: var(--primary-rich);
   border: none;
   outline: none;
   padding: 10px;
@@ -61,6 +82,10 @@ i {
   cursor: pointer;
 }
 
+.desktop-nav {
+  display: block;
+}
+
 app-add-user-popup {
   height: 100%;
   width: 100%;
@@ -68,4 +93,87 @@ app-add-user-popup {
 
 span {
   color: var(--accent-text-color) !important;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .nav-container {
+    padding-right: 10px;
+    gap: 10px;
+  }
+
+  .mobile-nav-controls {
+    display: flex;
+  }
+
+  .inner-nav-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-options {
+    flex: 1;
+    justify-content: center;
+    
+    .desktop-nav {
+      display: none;
+    }
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .search-bar-elements {
+    width: 100%;
+  }
+
+  input {
+    width: 100%;
+    max-width: 250px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .general-options {
+    gap: 15px;
+    
+    .desktop-nav {
+      display: none;
+    }
+
+    span {
+      display: none; /* Hide username on mobile to save space */
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding-right: 5px;
+    gap: 5px;
+  }
+
+  .mobile-nav-controls {
+    gap: 10px;
+    padding: 0 10px;
+
+    i {
+      font-size: 16px;
+      padding: 6px;
+    }
+  }
+
+  .search-container {
+    max-width: 200px;
+  }
+
+  input {
+    max-width: 150px;
+    padding: 8px;
+  }
+
+  .general-options {
+    gap: 10px;
+  }
 }

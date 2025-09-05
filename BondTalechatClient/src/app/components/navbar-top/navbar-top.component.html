@@ -1,11 +1,18 @@
 <div class="nav-container">
   <div class="inner-nav-container">
+    <!-- Mobile Navigation Controls -->
+    <div class="mobile-nav-controls" *ngIf="isMobile">
+      <i class="fa-solid fa-bars mobile-menu-btn" (click)="onToggleLeftSidebar()" title="Menu"></i>
+      <i class="fa-solid fa-comments mobile-chat-btn" (click)="onToggleUserList()" title="Chats"></i>
+      <i class="fa-solid fa-arrow-left mobile-back-btn" (click)="onToggleChatView()" title="Back" *ngIf="showBackButton"></i>
+    </div>
+
     <div class="search-options">
       <!-- <img src="/images/lessthannew.png" alt="lessthannew" /> -->
       <!-- <img src="/images/morethannew.png" alt="morethannew" /> -->
-       <i class="fa-solid fa-arrow-left"></i>
-       <i class="fa-solid fa-arrow-right"></i>
-      <div>
+       <i class="fa-solid fa-arrow-left desktop-nav" *ngIf="!isMobile"></i>
+       <i class="fa-solid fa-arrow-right desktop-nav" *ngIf="!isMobile"></i>
+      <div class="search-container">
         <div class="search-bar-elements">
           <img src="/images/searchicon.png" alt="search" />
           <input type="text" placeholder="Search" />
@@ -21,9 +28,9 @@
        <i class="fa-solid fa-user-plus" (click)="onAddUser()"></i>
        <i class="fa-solid fa-ellipsis"></i>
        <!-- <i class="fa-regular fa-user"></i> -->
-       <span style="color: black; cursor: pointer;" (click)="navigateToUserProfile()">{{ username }}</span>
-       <i class="fa-solid fa-minus"></i>
-       <i class="fa-regular fa-window-maximize"></i>
+       <span style="color: black; cursor: pointer;" (click)="navigateToUserProfile()" *ngIf="!isMobile">{{ username }}</span>
+       <i class="fa-solid fa-minus desktop-nav" *ngIf="!isMobile"></i>
+       <i class="fa-regular fa-window-maximize desktop-nav" *ngIf="!isMobile"></i>
        <i class="fa-solid fa-xmark" (click)="onLogout()" ></i>
     </div>
   </div>

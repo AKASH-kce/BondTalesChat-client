@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../Services/user.service';
 import { ChatService } from '../../Services/chat.Service';
@@ -17,9 +17,12 @@ import { VedioCallPopupComponentComponent } from '../../popupComponents/vedio-ca
   styleUrls: ['./users-list-side-bar.component.scss']
 })
 export class UsersListSideBarComponent implements OnInit {
+  @Output() conversationSelected = new EventEmitter<void>();
+  
   defaultProfileImage: string = "/images/profile.jpeg";
   conversations: IConversation[] = [];
   loginUserId: number | undefined;
+  isMobile = false;
 
   constructor(
     private chatService: ChatService,
@@ -30,6 +33,8 @@ export class UsersListSideBarComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
+    this.checkScreenSize();
+    
     this.userService.currentUserSubject.subscribe(user => {
       this.loginUserId = Number(user?.userId);
     });
@@ -38,6 +43,15 @@ export class UsersListSideBarComponent implements OnInit {
     });
 
     await this.loadConversations();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any): void {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize(): void {
+    this.isMobile = window.innerWidth <= 768;
   }
 
   async loadConversations(): Promise<void> {
@@ -64,6 +78,11 @@ export class UsersListSideBarComponent implements OnInit {
       },
       event
     });
+
+    // Emit event for mobile navigation
+    if (this.isMobile) {
+      this.conversationSelected.emit();
+    }
   }
   openAddUserDialog() {
     this.dialog.open(AddUserPopupComponent);
@@ -89,7 +108,9 @@ export class UsersListSideBarComponent implements OnInit {
           participantAvatar: conversation.otherUserProfilePicture || this.defaultProfileImage
         },
         disableClose: true,
-        panelClass: 'draggable-dialog'
+        panelClass: 'draggable-dialog',
+        hasBackdrop: true,
+        backdropClass: 'call-popup-backdrop'
       });
 
       // Handle dialog close
@@ -125,7 +146,9 @@ export class UsersListSideBarComponent implements OnInit {
           participantAvatar: conversation.otherUserProfilePicture || this.defaultProfileImage
         },
         disableClose: true,
-        panelClass: 'draggable-dialog'
+        panelClass: 'draggable-dialog',
+        hasBackdrop: true,
+        backdropClass: 'call-popup-backdrop'
       });
 
       // Handle dialog close

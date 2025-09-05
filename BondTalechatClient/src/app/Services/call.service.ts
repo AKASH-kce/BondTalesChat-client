@@ -85,7 +85,7 @@ export class CallService implements AfterViewInit {
     return this.localStream;
   }
 
-  constructor(private chatService: ChatService, private userService: UserService,private callService:CallService,private dialog: MatDialog) {
+  constructor(private chatService: ChatService, private userService: UserService, private dialog: MatDialog) {
     this.loadCallHistory();
     // Add sample data if no history exists (for testing)
     this.addSampleCallHistoryIfEmpty();
@@ -153,21 +153,6 @@ export class CallService implements AfterViewInit {
       }
     });
 
-    // (async () => { try { await this.callService.connectCallHub(); } catch {} })();
-    // this.callService.incomingCall$.subscribe(payload => {
-    //   console.log('Incoming call:', payload);
-    //   if (!payload) return;
-    //   const accept = confirm(`Incoming ${payload.callType} call from ${payload.participantName ?? payload.participantId}. Accept?`);
-    //   if (!accept) {
-    //     this.callService.declineCall(payload.callId);
-    //     return;
-    //   }
-    //   this.dialog.open(VedioCallPopupComponentComponent, {
-    //     data: payload,
-    //     disableClose: true,
-    //     panelClass: 'draggable-dialog'
-    //   });
-    // });
   }
 
 
@@ -1062,6 +1047,8 @@ export class CallService implements AfterViewInit {
       },
       disableClose: true,
       panelClass: 'draggable-dialog',
+      hasBackdrop: true,
+      backdropClass: 'call-popup-backdrop',
       width: '800px',
       height: '600px'
     });

@@ -38,6 +38,27 @@
   /* dark gold-brown with subtle glow */
   --active-chat-hover: #4D3A21;
   /* slightly lighter for hover effect */
+
+  /* Mobile-specific variables */
+  --mobile-header-height: 60px;
+  --mobile-sidebar-width: 280px;
+  --mobile-user-list-width: 100%;
+  --mobile-breakpoint: 768px;
+  --mobile-small-breakpoint: 480px;
+
+  /* Z-Index Hierarchy */
+  --z-index-base: 1;
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-fixed: 300;
+  --z-index-modal-backdrop: 1000;
+  --z-index-mobile-overlay: 1000;
+  --z-index-mobile-sidebar: 1003;
+  --z-index-mobile-navbar: 1004;
+  --z-index-modal: 1005;
+  --z-index-popover: 1010;
+  --z-index-tooltip: 1020;
+  --z-index-call-popup: 10000;
 }
 
 * {
@@ -86,9 +107,357 @@
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
+  z-index: var(--z-index-call-popup) !important;
 }
 
 .incoming-call-dialog .mat-mdc-dialog-surface {
   background: transparent !important;
   box-shadow: none !important;
+}
+
+/* Call Popup Backdrop */
+.call-popup-backdrop {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: none !important; /* Remove blur effect */
+  z-index: var(--z-index-call-popup) !important;
+}
+
+/* Ensure call popup dialogs are above backdrop */
+.draggable-dialog .mat-mdc-dialog-container {
+  z-index: calc(var(--z-index-call-popup) + 1) !important;
+  position: fixed !important;
+  transform: none !important; /* Remove centering for custom positioning */
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}
+
+.draggable-dialog .cdk-overlay-pane {
+  z-index: calc(var(--z-index-call-popup) + 1) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+
+.draggable-dialog .cdk-overlay-pane .mat-mdc-dialog-container {
+  pointer-events: auto !important;
+  margin: 0 !important;
+  position: relative !important;
+  transform: none !important;
+}
+
+/* Mobile - no blur for call popups */
+@media (max-width: 768px) {
+  .call-popup-backdrop {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* Call Selection Backdrop - lighter for better visibility */
+.call-selection-backdrop {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: none !important;
+  z-index: var(--z-index-modal) !important;
+  pointer-events: none !important; /* Allow clicks to pass through backdrop */
+}
+
+/* Call Selection Dialog - ensure no blur effects */
+.call-selection-dialog .mat-mdc-dialog-container {
+  backdrop-filter: none !important;
+  filter: none !important;
+  pointer-events: auto !important;
+}
+
+/* Call Selection Dialog - ensure it's above backdrop */
+.call-selection-dialog .mat-mdc-dialog-container {
+  z-index: calc(var(--z-index-modal) + 1) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+  position: fixed !important;
+  transform: none !important; /* Remove centering transform for custom positioning */
+  margin: 0 !important;
+}
+
+.call-selection-dialog .cdk-overlay-pane {
+  z-index: calc(var(--z-index-modal) + 1) !important;
+  pointer-events: none !important; /* Allow clicks to pass through to dialog content */
+}
+
+.call-selection-dialog .cdk-overlay-pane .mat-mdc-dialog-container {
+  pointer-events: auto !important; /* Re-enable pointer events for dialog content */
+}
+
+/* Mobile call selection */
+@media (max-width: 768px) {
+  .call-selection-backdrop {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .call-selection-dialog .mat-mdc-dialog-container {
+    position: fixed !important;
+    z-index: var(--z-index-call-popup) !important;
+  }
+}
+
+/* Global Dialog Z-Index Override */
+::ng-deep .cdk-overlay-container {
+  z-index: var(--z-index-call-popup) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+::ng-deep .cdk-overlay-backdrop {
+  z-index: var(--z-index-call-popup) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  z-index: var(--z-index-call-popup) !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+
+/* Ensure dialog containers are visible and interactive */
+::ng-deep .cdk-overlay-pane .mat-mdc-dialog-container {
+  pointer-events: auto !important;
+  position: relative !important;
+  margin: auto !important;
+  transform: none !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  overflow: visible !important;
+}
+
+/* WhatsApp-like call popup styling */
+.draggable-dialog .mat-mdc-dialog-container {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  background: transparent !important;
+}
+
+/* Minimized state styling */
+.draggable-dialog .mat-mdc-dialog-container.minimized {
+  width: 350px !important;
+  height: 80px !important;
+  border-radius: 15px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Force dialog visibility */
+::ng-deep .draggable-dialog {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+::ng-deep .draggable-dialog .mat-mdc-dialog-container {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Ensure backdrop is visible */
+::ng-deep .call-popup-backdrop {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+/* Ensure call popup dialogs have highest priority */
+::ng-deep .draggable-dialog .cdk-overlay-container {
+  z-index: var(--z-index-call-popup) !important;
+}
+
+::ng-deep .draggable-dialog .cdk-overlay-backdrop {
+  z-index: var(--z-index-call-popup) !important;
+}
+
+::ng-deep .draggable-dialog .cdk-overlay-pane {
+  z-index: var(--z-index-call-popup) !important;
+}
+
+/* Mobile Dialog Positioning */
+@media (max-width: 768px) {
+  .mat-mdc-dialog-container {
+    z-index: var(--z-index-call-popup) !important;
+  }
+  
+  .incoming-call-dialog .mat-mdc-dialog-container {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 400px !important;
+    z-index: var(--z-index-call-popup) !important;
+  }
+  
+  .call-popup-backdrop {
+    z-index: var(--z-index-call-popup) !important;
+  }
+
+  /* Ensure call popups are always visible on mobile */
+  .cdk-overlay-container {
+    z-index: var(--z-index-call-popup) !important;
+  }
+
+  .cdk-overlay-backdrop {
+    z-index: var(--z-index-call-popup) !important;
+  }
+
+  .cdk-overlay-pane {
+    z-index: var(--z-index-call-popup) !important;
+  }
+
+  /* Force call popup dialogs to be visible */
+  .draggable-dialog .cdk-overlay-container {
+    z-index: var(--z-index-call-popup) !important;
+  }
+
+  .draggable-dialog .cdk-overlay-backdrop {
+    z-index: var(--z-index-call-popup) !important;
+  }
+
+  .draggable-dialog .cdk-overlay-pane {
+    z-index: var(--z-index-call-popup) !important;
+  }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide scrollbars on mobile for cleaner look */
+  ::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+
+  /* Touch-friendly interactions */
+  button, .clickable, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+}
+
+/* Mobile Navigation Overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: var(--z-index-mobile-overlay);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile Sidebar Animation */
+.mobile-sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-sidebar.active {
+  transform: translateX(0);
+}
+
+/* Mobile Chat View Animation */
+.mobile-chat-view {
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-chat-view.active {
+  transform: translateX(0);
+}
+
+/* Mobile User List Animation */
+.mobile-user-list {
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-user-list.active {
+  transform: translateX(0);
+}
+
+/* Touch and swipe gestures support */
+.touch-action-pan-x {
+  touch-action: pan-x;
+}
+
+.touch-action-pan-y {
+  touch-action: pan-y;
+}
+
+/* Prevent text selection on mobile */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling for mobile */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Mobile-specific button styles */
+.mobile-button {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-button:active {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
 }

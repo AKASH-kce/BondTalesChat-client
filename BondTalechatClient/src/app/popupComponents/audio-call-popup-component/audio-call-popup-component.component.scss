@@ -1,3 +1,13 @@
+/* Desktop z-index fix for audio call popup */
+.draggable-dialog .mat-mdc-dialog-container {
+  z-index: calc(var(--z-index-call-popup) + 1) !important;
+  position: relative !important;
+}
+
+.draggable-dialog .cdk-overlay-pane {
+  z-index: calc(var(--z-index-call-popup) + 1) !important;
+}
+
 .audio-call-container {
   width: 400px;
   height: 500px;
@@ -526,7 +536,7 @@
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
+      z-index: var(--z-index-popover);
 
       .option-item {
         display: flex;
@@ -855,5 +865,54 @@
         width: 100%;
       }
     }
+  }
+
+  /* Ensure audio call dialog is properly positioned on mobile */
+  .draggable-dialog .mat-mdc-dialog-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    z-index: calc(var(--z-index-call-popup) + 1) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+  
+  .draggable-dialog .cdk-overlay-pane {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: calc(var(--z-index-call-popup) + 1) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .audio-call-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: var(--z-index-call-popup) !important;
+    border-radius: 0 !important;
+  }
+
+  /* Force dialog container to be full screen on mobile */
+  .mat-mdc-dialog-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: var(--z-index-call-popup) !important;
   }
 }

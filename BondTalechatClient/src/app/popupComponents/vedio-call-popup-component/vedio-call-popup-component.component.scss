@@ -437,7 +437,7 @@
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
+      z-index: var(--z-index-popover);
 
       .option-item {
         display: flex;
@@ -472,7 +472,7 @@
       border-left: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       flex-direction: column;
-      z-index: 1000;
+      z-index: var(--z-index-popover);
 
       .chat-header {
         padding: 16px;
@@ -639,6 +639,10 @@
     width: 100vw;
     height: 100vh;
     border-radius: 0;
+    z-index: var(--z-index-call-popup) !important; /* Ensure it appears above mobile navigation */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
 
     .call-body {
       .video-grid {
@@ -683,4 +687,62 @@
 
 .draggable-dialog .mat-mdc-dialog-container {
   padding: 0;
+  z-index: calc(var(--z-index-call-popup) + 1) !important; /* Ensure dialog appears above backdrop */
+  position: relative !important;
+}
+
+.draggable-dialog .cdk-overlay-pane {
+  z-index: calc(var(--z-index-call-popup) + 1) !important;
+}
+
+/* Mobile dialog positioning */
+@media (max-width: 768px) {
+  .draggable-dialog .mat-mdc-dialog-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    z-index: var(--z-index-call-popup) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+  
+  .draggable-dialog .cdk-overlay-pane {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: var(--z-index-call-popup) !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* Ensure video call container is properly positioned on mobile */
+  .video-call-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: var(--z-index-call-popup) !important;
+    border-radius: 0 !important;
+  }
+
+  /* Force dialog container to be full screen on mobile */
+  .mat-mdc-dialog-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: var(--z-index-call-popup) !important;
+  }
 }

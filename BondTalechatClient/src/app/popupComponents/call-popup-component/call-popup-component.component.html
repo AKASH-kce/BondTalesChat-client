@@ -5,11 +5,15 @@
 <div class="call-popup-container">
   <h3>{{data.userName}}</h3>
   <div class="call-options">
-    <button class="audio-call-btn" (click)="closeDialog('audioCall')">
+    <button class="audio-call-btn" (click)="onButtonClick('audioCall', $event)" type="button" (mousedown)="onMouseDown('audioCall', $event)" (mouseup)="onMouseUp('audioCall', $event)">
       <i class="fa-solid fa-phone-volume"></i> Audio Call
     </button>
-    <button class="video-call-btn" (click)="closeDialog('videoCall')">
+    <button class="video-call-btn" (click)="onButtonClick('videoCall', $event)" type="button" (mousedown)="onMouseDown('videoCall', $event)" (mouseup)="onMouseUp('videoCall', $event)">
       <i class="fa-solid fa-video"></i> Video Call
+    </button>
+    <!-- Debug button -->
+    <button class="test-btn" (click)="testCloseDialog()" type="button" style="background: red; color: white; margin-top: 10px;">
+      Test Close Dialog
     </button>
   </div>
 </div>

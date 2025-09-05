@@ -2,14 +2,26 @@
   display: flex;
   justify-content: center;
   height: 100%;
+  background-color: var(--sidebar-color) !important;
+  color: var(--primary-text-color) !important;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
 }
 
 .inner-left-sidebar {
   display: flex;
   flex-direction: column;
-  height: 55%;
-  justify-content: space-between;
-  padding: 20px 0px;
+  height: 100%;
+  justify-content: flex-start;
+  padding: 20px 15px;
+  width: 100%;
+  max-width: 200px;
+  gap: 20px;
+  position: relative;
+  z-index: 2;
 }
 
 .main-element-container {
@@ -29,6 +41,8 @@
   padding: 10px;
   border-radius: 8px;
   transition: all 0.2s ease;
+  min-height: 60px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 
   &:hover {
     background-color: rgba(0, 123, 255, 0.1);
@@ -37,19 +51,22 @@
 
   i {
     font-size: 20px;
-    color: #666;
+    color: var(--secondary-text-color);
     transition: color 0.2s ease;
+    display: block;
   }
 
   small {
     font-size: 12px;
-    color: #666;
+    color: var(--secondary-text-color);
     transition: color 0.2s ease;
+    display: block;
+    text-align: center;
   }
 
   &:hover i,
   &:hover small {
-    color: #007bff;
+    color: var(--accent-text-color);
   }
 }
 
@@ -58,13 +75,90 @@ img {
   height: 20px;
 }
 
-// small {
-//   color: black;
-// }
-
 .logo{
     width: 60px;
     height: 60px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .left-sidebar-container {
+    width: 100%;
+    height: 100vh;
+    padding: 0;
+  }
+
+  .inner-left-sidebar {
+    height: 100%;
+    padding: 20px 15px;
+    max-width: none;
+  }
+
+  .main-element-container {
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .element-container {
+    padding: 15px;
+    border-radius: 12px;
+    min-height: 60px;
+
+    i {
+      font-size: 24px;
+      color: var(--primary-text-color);
+    }
+
+    small {
+      font-size: 14px;
+      color: var(--primary-text-color);
+      margin-top: 5px;
+    }
+
+    &:hover {
+      background-color: var(--active-chat-hover);
+      transform: none;
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner-left-sidebar {
+    padding: 15px 10px;
+  }
+
+  .main-element-container {
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .element-container {
+    padding: 12px;
+    min-height: 50px;
+
+    i {
+      font-size: 20px;
+    }
+
+    small {
+      font-size: 12px;
+    }
+  }
+
+  .logo {
+    width: 70px;
+    height: 70px;
+  }
 }

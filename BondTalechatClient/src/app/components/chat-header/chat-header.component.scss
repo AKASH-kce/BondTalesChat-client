@@ -10,14 +10,15 @@ p {
     padding: 5px;
     justify-content: space-between;
     align-items: center;
+    background-color: var(--chat-header-color);
 }
 
 .left-sub-container {
     display: flex;
     flex-direction: row;
     gap: 10px;
-    justify-content: center;
     align-items: center;
+    flex: 1;
 }
 
 .right-sub-container {
@@ -60,6 +61,14 @@ p {
 
 i {
     color: var(--accent-text-color);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
 }
 
 img {
@@ -77,6 +86,7 @@ img {
 .user-name {
     color: var(--profile-name-color);
     padding: 2px;
+    font-weight: 500;
 }
 
 .chats-active {
@@ -93,11 +103,18 @@ img {
 }
 
 .add-tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: 2px solid var(--separate-entities-color);
     padding: 2px;
     border-radius: 5px;
 }
-
+.drop-down{
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
 .drop-down i {
     display: inline-block;
     transition: transform 0.6s ease;
@@ -105,4 +122,99 @@ img {
 
 .drop-down i.open {
     transform: rotate(180deg);
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .left-sub-container {
+        gap: 8px;
+    }
+
+    .user-name {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .chats,
+    .shared-media,
+    .chats-active {
+        font-size: 14px;
+    }
+
+    .right-sub-container {
+        gap: 8px;
+    }
+
+    .right-option {
+        gap: 8px;
+    }
+
+    i {
+        font-size: 16px;
+        padding: 6px;
+    }
+
+    img {
+        height: 40px;
+        margin-top: 0;
+    }
+
+    .call-options {
+        padding: 4px;
+    }
+
+    .call-icon {
+        padding: 4px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 6px 8px;
+        gap: 6px;
+    }
+
+    .left-sub-container {
+        gap: 6px;
+    }
+
+    .user-name {
+        font-size: 15px;
+    }
+
+    .chats,
+    .shared-media,
+    .chats-active {
+        font-size: 13px;
+    }
+
+    .right-sub-container {
+        gap: 6px;
+    }
+
+    .right-option {
+        gap: 6px;
+    }
+
+    i {
+        font-size: 14px;
+        padding: 4px;
+    }
+
+    img {
+        height: 35px;
+    }
+
+    .call-options {
+        padding: 3px;
+    }
+
+    .call-icon {
+        padding: 3px 6px;
+    }
 }

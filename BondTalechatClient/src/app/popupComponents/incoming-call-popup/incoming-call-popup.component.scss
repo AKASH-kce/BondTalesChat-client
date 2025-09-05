@@ -166,6 +166,15 @@
 }
 
 // Responsive design
+@media (max-width: 768px) {
+  .incoming-call-popup {
+    min-width: 90vw;
+    max-width: 400px;
+    padding: 25px;
+    z-index: var(--z-index-call-popup) !important;
+  }
+}
+
 @media (max-width: 480px) {
   .incoming-call-popup {
     min-width: 300px;

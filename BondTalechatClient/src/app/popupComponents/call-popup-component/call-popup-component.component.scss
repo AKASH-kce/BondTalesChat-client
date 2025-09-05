@@ -12,13 +12,55 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 0 !important;
+  z-index: var(--z-index-modal) !important;
   overflow: visible !important; /* allow tip outside */
+  pointer-events: auto !important; /* Ensure container is interactive */
+  backdrop-filter: none !important; /* Remove any blur effects */
+  filter: none !important; /* Remove any filter effects */
 }
-/* Blur the background behind the dialog */
+/* Ensure call selection popup is always visible and above backdrop */
+::ng-deep .mat-mdc-dialog-container {
+  z-index: calc(var(--z-index-modal) + 2) !important;
+  position: relative !important;
+  backdrop-filter: none !important; /* Remove any blur effects */
+  filter: none !important; /* Remove any filter effects */
+}
+
+::ng-deep .cdk-overlay-pane {
+  z-index: calc(var(--z-index-modal) + 2) !important;
+  pointer-events: none !important; /* Allow clicks to pass through to dialog content */
+}
+
+::ng-deep .cdk-overlay-pane .mat-mdc-dialog-container {
+  pointer-events: auto !important; /* Re-enable pointer events for dialog content */
+}
+
+/* No blur for call selection popup backdrop */
 ::ng-deep .cdk-overlay-backdrop {
-  background-color: rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(8px) !important;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: none !important;
+  z-index: var(--z-index-modal) !important;
+  pointer-events: none !important; /* Allow clicks to pass through backdrop */
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  ::ng-deep .mat-mdc-dialog-container {
+    position: fixed !important;
+    z-index: calc(var(--z-index-call-popup) + 1) !important;
+    max-width: 90vw !important;
+    max-height: 50vh !important;
+  }
+
+  ::ng-deep .cdk-overlay-pane {
+    position: fixed !important;
+    z-index: calc(var(--z-index-call-popup) + 1) !important;
+  }
+
+  .call-popup-container {
+    width: 100%;
+    min-width: 200px;
+  }
 }
 
 /* Triangle tip */
@@ -32,7 +74,7 @@
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
   border-bottom: 10px solid var(--user-list-area-color); /* match dialog bg */
-  z-index: 2000; /* above dialog */
+  z-index: var(--z-index-popover); /* above dialog */
 }
 
 /* Main container */
@@ -45,6 +87,12 @@
   width: 200px;
   background: var(--user-list-area-color);
   border-radius: 16px;
+  pointer-events: auto !important; /* Ensure container is interactive */
+  position: relative !important;
+  z-index: 1 !important; /* Ensure container is above backdrop */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .call-popup-container h3 {
@@ -59,6 +107,9 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  pointer-events: auto !important; /* Ensure container is interactive */
+  position: relative !important;
+  z-index: 5 !important; /* Ensure container is above other elements */
 }
 
 .call-options button {
@@ -73,6 +124,13 @@
   font-size: 13px;
   color: var(--primary-text-color);
   transition: all 0.2s ease-in-out;
+  pointer-events: auto !important; /* Ensure buttons are clickable */
+  position: relative !important;
+  z-index: 10 !important; /* Ensure buttons are above other elements */
+  user-select: none; /* Prevent text selection */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .audio-call-btn {
@@ -81,6 +139,12 @@
 
 .audio-call-btn:hover {
   background: #45a049;
+  transform: scale(1.05); /* Visual feedback on hover */
+}
+
+.audio-call-btn:active {
+  background: #3d8b40;
+  transform: scale(0.95); /* Visual feedback on click */
 }
 
 .video-call-btn {
@@ -89,4 +153,10 @@
 
 .video-call-btn:hover {
   background: #1976d2;
+  transform: scale(1.05); /* Visual feedback on hover */
+}
+
+.video-call-btn:active {
+  background: #1565c0;
+  transform: scale(0.95); /* Visual feedback on click */
 }
