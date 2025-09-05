@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { AfterViewInit, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ChatService } from './chat.Service';
 import * as signalR from '@microsoft/signalr';
@@ -44,7 +44,7 @@ export interface CallHistory {
 @Injectable({
   providedIn: 'root'
 })
-export class CallService {
+export class CallService implements AfterViewInit{
   private callStateSubject = new BehaviorSubject<CallState>({
     isInCall: false,
     isVideoEnabled: false,
@@ -148,6 +148,14 @@ export class CallService {
       }
     });
   }
+
+    
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.ensureCallHub().catch((e) => { console.error('Failed to connect CallHub after view init', e);});
+    }, 10000); // 10 seconds delay
+  }
+  
   private getToken(): string {
     try {
       return localStorage.getItem('token') || '';
