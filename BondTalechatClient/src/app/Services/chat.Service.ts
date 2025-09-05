@@ -61,41 +61,8 @@ export class ChatService {
             this.message$.next(msg);
         });
 
-        // Call-related events
-        this.hubConnection.on('IncomingCall', (payload: any) => {
-            console.log('Incoming call:', payload);
-            this.incomingCall$.next(payload);
-        });
-
-        this.hubConnection.on('CallAccepted', (payload: any) => {
-            console.log('Call accepted:', payload);
-            this.callAccepted$.next(payload);
-        });
-
-        this.hubConnection.on('CallDeclined', (payload: any) => {
-            console.log('Call declined:', payload);
-            this.callDeclined$.next(payload);
-        });
-
-        this.hubConnection.on('CallEnded', (payload: any) => {
-            console.log('Call ended:', payload);
-            this.callEnded$.next(payload);
-        });
-
-        this.hubConnection.on('CallOffer', (payload: any) => {
-            console.log('Call offer:', payload);
-            this.callOffer$.next(payload);
-        });
-
-        this.hubConnection.on('CallAnswer', (payload: any) => {
-            console.log('Call answer:', payload);
-            this.callAnswer$.next(payload);
-        });
-
-        this.hubConnection.on('CallCandidate', (payload: any) => {
-            console.log('CallCandidate', payload);
-            this.callCandidate$.next(payload);
-        });
+        // Note: Call-related events are handled by CallService via CallHub
+        // ChatHub only handles chat messages
     }
 
     private async waitUntilConnected(): Promise<void> {
