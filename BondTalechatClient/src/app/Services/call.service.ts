@@ -215,9 +215,9 @@ export class CallService implements AfterViewInit{
   //     console.warn('Failed flushing queued ICE', e);
   //   }
   // }
-  private async ensureCallHub(): Promise<void> {
-    if (this.callHub) return;
+  public async ensureCallHub(): Promise<void> {
     console.log("Connecting CallHub, cookies:", document.cookie); // confirm cookie is present
+    
 
     this.callHub = new signalR.HubConnectionBuilder()
       .withUrl(environment.callHubUrl, {

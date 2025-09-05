@@ -6,6 +6,7 @@ import { CallPopupComponentComponent } from '../../popupComponents/call-popup-co
 import { CommonModule } from '@angular/common';
 import { AudioCallPopupComponentComponent } from '../../popupComponents/audio-call-popup-component/audio-call-popup-component.component';
 import { VedioCallPopupComponentComponent } from '../../popupComponents/vedio-call-popup-component/vedio-call-popup-component.component';
+import { CallService } from '../../Services/call.service';
 @Component({
   selector: 'app-chat-header',
   standalone: true,
@@ -21,7 +22,7 @@ export class ChatHeaderComponent implements OnInit {
   callDialogRef: any;
   useId: number | undefined;
 
-  constructor(private currentUserDetialService: currentUserDetialsService, private dialogRef: MatDialog) {
+  constructor(private currentUserDetialService: currentUserDetialsService, private dialogRef: MatDialog,private callService:CallService) {
 
   }
   ngOnInit(): void {
@@ -39,7 +40,8 @@ export class ChatHeaderComponent implements OnInit {
         navigator.vibrate([500, 300]);
       }
     }, 1000);
-
+  
+      this.callService.ensureCallHub().catch((e) => { console.error('Failed to connect CallHub after view init', e);});
     navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then((stream) => {
       clearInterval(vibrateInterval);
       if (navigator.vibrate) {
